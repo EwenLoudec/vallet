@@ -5,7 +5,7 @@ En-tête permanent : « Vallet Location — Réservations » et « Aujourd'hui :
 ## Onglet « Rechercher et réserver » (US1, US2)
 
 - Champs : **Type de machine** (liste des 7 types), **Du**, **Au** (dates, par défaut aujourd'hui).
-- Bouton : « Rechercher ».
+- Bouton : « Rechercher ». Une période incomplète, qui commence avant aujourd'hui ou qui finit avant de commencer affiche « Refusé : » et le motif, sans résultat.
 - Résultat « Disponibles » : référence, type, agence, et un bouton « Réserver » par machine.
 - Réserver ouvre sous la machine : **Client**, **Agence qui saisit** (7 agences), bouton « Confirmer la réservation de NAC140 ». Les dates sont celles de la recherche.
 - Succès : message « NAC140 réservée pour BTP Rhone du 16/10/2026 au 17/10/2026. », et les résultats sont recalculés.
@@ -20,7 +20,7 @@ En-tête permanent : « Vallet Location — Réservations » et « Aujourd'hui :
 
 ## Onglet « Atelier » (US3)
 
-- Tableau du parc : référence, type, agence, échéance VGP (nacelles), état (« Disponible » ou « À l'atelier jusqu'au … »).
+- Tableau du parc : référence, type, agence, échéance VGP (nacelles, suivie de « (échue) » si elle est passée au 12/10/2026), état (« Disponible » ou « À l'atelier jusqu'au … »).
 - Machine disponible : champs **Jusqu'au** et **Motif**, bouton « Immobiliser NAC112 ».
 - Machine à l'atelier : bouton « Remettre en service MINI07 ».
 - Après un blocage qui touche des réservations : « 1 réservation à replacer : voir l'onglet Réservations. »

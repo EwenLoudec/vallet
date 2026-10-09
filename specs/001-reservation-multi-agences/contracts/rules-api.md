@@ -6,13 +6,14 @@ Global `ValletRules` in the browser, `module.exports` under Node. Every function
 |----------|---------|--------|
 | `vgpExpiry(lastVgp)` | ISO date: `lastVgp` + 6 months, clamped to month end | FR-007 |
 | `machineBlockers(state, ref, start, end, ignoreId?)` | list of reasons why the machine cannot take that period; empty when available | FR-005, FR-006, FR-007 |
+| `validatePeriod(state, start, end)` | reasons for missing dates, a start before today, or an end before the start; empty when valid | FR-008 |
 | `search(state, type, start, end)` | `{ available: Machine[], unavailable: { machine, reasons }[] }`, across all agencies | FR-001, FR-002, FR-003 |
 | `validateBooking(state, request)` | `{ ok: true }` or `{ ok: false, reasons }` | FR-004 to FR-009 |
 | `book(state, request)` | `{ ok: true, state, reservation }` or `{ ok: false, reasons }` | FR-004, FR-010 |
 | `reservationStatuses(state)` | per reservation: `{ reservation, status: 'kept' \| 'toRelocate', reasons }` | FR-012, FR-014 |
 | `alternatives(state, reservationId)` | machines of the same type available on that reservation's dates | FR-015 |
 | `relocate(state, reservationId, ref)` | `{ ok: true, state }` or `{ ok: false, reasons }` | FR-015 |
-| `blockMachine(state, ref, until, reason)` | `{ ok: true, state }` or `{ ok: false, reasons }` | FR-011 |
+| `blockMachine(state, ref, until, reason)` | `{ ok: true, state }` or `{ ok: false, reasons }`; `until` and `reason` are required, `until` ≥ today | FR-011 |
 | `unblockMachine(state, ref)` | `{ ok: true, state }` | FR-011 |
 
 ## Reasons
@@ -28,3 +29,4 @@ Each reason is `{ code, message }`, where `message` is the French sentence shown
 | `dateOrder` | « La date de fin doit être après la date de début ou le même jour. » |
 | `missingField` | « Indiquez le client. » / « Indiquez l'agence qui saisit. » / « Indiquez les dates. » |
 | `unknownMachine` | « Machine inconnue. » |
+| `otherType` | « Cette machine n'est pas du même type (Nacelle 12 m). » |

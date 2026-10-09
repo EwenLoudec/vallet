@@ -12,7 +12,7 @@ description: "Liste des tâches — Réservation multi-agences"
 **Tests**: demandés. Chaque scénario d'acceptation de la spec a un test `node:test`, écrit avant le code et vérifié en échec. Lancement depuis la racine du workspace :
 
 ```bash
-MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W):/ws" -w /ws node:22-alpine node --test web/tests/
+MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W):/ws" -w /ws node:22-alpine node --test 'web/tests/*.test.js'
 ```
 
 **Organization**: une phase par user story. Les règles vont dans `web/src/rules.js` (fonctions pures, voir [contracts/rules-api.md](contracts/rules-api.md)), l'affichage dans `web/src/app.js` (voir [contracts/ui.md](contracts/ui.md)).
@@ -28,10 +28,10 @@ MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W):/ws" -w /ws node:22-alpine node
 
 **Purpose**: squelette de `web/`
 
-- [ ] T001 Créer la branche `001-reservation-multi-agences` dans le dépôt workspace `vallet` à partir de `main` (remplace le hook `speckit.multirepo.branch`, voir plan.md « Affected Repos »)
-- [ ] T002 Créer `web/CLAUDE.md` : stack (HTML/CSS/JS statique, scripts classiques, aucune dépendance), lancement (double-clic sur `web/index.html`), tests (commande Docker ci-dessus), convention de commit (message à l'impératif, en anglais)
-- [ ] T003 [P] Créer `web/index.html` : en-tête « Vallet Location — Réservations » et « Aujourd'hui : lundi 12 octobre 2026 », trois onglets vides (« Rechercher et réserver », « Réservations », « Atelier »), chargement dans cet ordre de `src/data.js`, `src/rules.js`, `src/app.js` en scripts classiques (pas de `type="module"`)
-- [ ] T004 [P] Créer `web/styles.css` : mise en page lisible sur un écran de portable, onglets, tableaux, messages de succès et de refus visuellement distincts (pas seulement par la couleur : préfixe texte « Refusé : » / « Réservé : »)
+- [X] T001 Créer la branche `001-reservation-multi-agences` dans le dépôt workspace `vallet` à partir de `main` (remplace le hook `speckit.multirepo.branch`, voir plan.md « Affected Repos »)
+- [X] T002 Créer `web/CLAUDE.md` : stack (HTML/CSS/JS statique, scripts classiques, aucune dépendance), lancement (double-clic sur `web/index.html`), tests (commande Docker ci-dessus), convention de commit (message à l'impératif, en anglais)
+- [X] T003 [P] Créer `web/index.html` : en-tête « Vallet Location — Réservations » et « Aujourd'hui : lundi 12 octobre 2026 », trois onglets vides (« Rechercher et réserver », « Réservations », « Atelier »), chargement dans cet ordre de `src/data.js`, `src/rules.js`, `src/app.js` en scripts classiques (pas de `type="module"`)
+- [X] T004 [P] Créer `web/styles.css` : mise en page lisible sur un écran de portable, onglets, tableaux, messages de succès et de refus visuellement distincts (pas seulement par la couleur : préfixe texte « Refusé : » / « Réservé : »)
 
 ---
 
@@ -41,10 +41,10 @@ MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W):/ws" -w /ws node:22-alpine node
 
 **⚠️ CRITICAL**: aucune story ne commence avant la fin de cette phase
 
-- [ ] T005 Créer `web/src/data.js` exposant `ValletData` (global navigateur et `module.exports` sous Node) avec `today: '2026-10-12'`, la liste des 7 agences dans l'ordre « Lyon Est, Villeurbanne, Grenoble, Saint-Étienne, Clermont-Ferrand, Annecy, Valence », les 12 machines et les 7 réservations **exactement** comme dans les tableaux « Données de départ » de [data-model.md](data-model.md) (MINI07 : `workshop: { until: '2026-10-20', reason: 'verin casse' }` ; `lastVgp: null` pour les non-nacelles ; `id` 1 à 7 dans l'ordre donné)
-- [ ] T006 Créer `web/tests/helpers.js` : `freshState()` qui renvoie une copie profonde de `ValletData` sous la forme `{ today, machines, reservations }`, pour que chaque test parte des données de départ
-- [ ] T007 [P] Écrire `web/tests/foundation.test.js` (doit échouer) : `vgpExpiry('2026-04-15') === '2026-10-15'`, `vgpExpiry('2026-03-05') === '2026-09-05'`, `vgpExpiry('2026-08-31') === '2027-02-28'` ; `machineBlockers` renvoie `overlap` pour NAC112 du 17/10 au 20/10, rien pour NAC112 du 19/10 au 20/10 (dates incluses), `workshop` pour MINI07 du 19/10 au 22/10, rien pour MINI07 à partir du 21/10, `vgp` pour NAC118 au départ du 16/10, rien pour NAC118 au départ du 15/10 même jusqu'au 25/10, rien pour COMP21 (non-nacelle) quelle que soit la VGP
-- [ ] T008 Créer `web/src/rules.js` exposant `ValletRules` (global navigateur et `module.exports` sous Node) avec `vgpExpiry(lastVgp)` (6 mois calendaires, jour ramené au dernier jour du mois si besoin), `isNacelle(machine)` (type commençant par « Nacelle »), formatage `JJ/MM/AAAA`, et `machineBlockers(state, ref, start, end, ignoreId)` qui renvoie les raisons `{ code, message }` (`overlap`, `workshop`, `vgp`) avec les messages de [contracts/rules-api.md](contracts/rules-api.md) ; le chevauchement ne compte que les réservations **gardées** et ignore `ignoreId` ; dates comparées en chaînes ISO, jamais via `new Date()` sur l'horloge. T007 doit passer.
+- [X] T005 Créer `web/src/data.js` exposant `ValletData` (global navigateur et `module.exports` sous Node) avec `today: '2026-10-12'`, la liste des 7 agences dans l'ordre « Lyon Est, Villeurbanne, Grenoble, Saint-Étienne, Clermont-Ferrand, Annecy, Valence », les 12 machines et les 7 réservations **exactement** comme dans les tableaux « Données de départ » de [data-model.md](data-model.md) (MINI07 : `workshop: { until: '2026-10-20', reason: 'verin casse' }` ; `lastVgp: null` pour les non-nacelles ; `id` 1 à 7 dans l'ordre donné)
+- [X] T006 Créer `web/tests/helpers.js` : `freshState()` qui renvoie une copie profonde de `ValletData` sous la forme `{ today, machines, reservations }`, pour que chaque test parte des données de départ
+- [X] T007 [P] Écrire `web/tests/foundation.test.js` (doit échouer) : `vgpExpiry('2026-04-15') === '2026-10-15'`, `vgpExpiry('2026-03-05') === '2026-09-05'`, `vgpExpiry('2026-08-31') === '2027-02-28'` ; `machineBlockers` renvoie `overlap` pour NAC112 du 17/10 au 20/10, rien pour NAC112 du 19/10 au 20/10 (dates incluses), `workshop` pour MINI07 du 19/10 au 22/10, rien pour MINI07 à partir du 21/10, `vgp` pour NAC118 au départ du 16/10, rien pour NAC118 au départ du 15/10 même jusqu'au 25/10, rien pour COMP21 (non-nacelle) quelle que soit la VGP
+- [X] T008 Créer `web/src/rules.js` exposant `ValletRules` (global navigateur et `module.exports` sous Node) avec `vgpExpiry(lastVgp)` (6 mois calendaires, jour ramené au dernier jour du mois si besoin), `isNacelle(machine)` (type commençant par « Nacelle »), formatage `JJ/MM/AAAA`, et `machineBlockers(state, ref, start, end, ignoreId)` qui renvoie les raisons `{ code, message }` (`overlap`, `workshop`, `vgp`) avec les messages de [contracts/rules-api.md](contracts/rules-api.md) ; le chevauchement ne compte que les réservations **gardées** et ignore `ignoreId` ; dates comparées en chaînes ISO, jamais via `new Date()` sur l'horloge. T007 doit passer.
 
 **Checkpoint**: `foundation.test.js` passe.
 
@@ -58,12 +58,12 @@ MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W):/ws" -w /ws node:22-alpine node
 
 ### Tests for User Story 1
 
-- [ ] T009 [P] [US1] Écrire `web/tests/search.test.js` (doit échouer) : (1) « Nacelle 12 m » du 16/10 au 17/10 → disponible NAC140 (agence Grenoble) ; indisponibles NAC112 (`overlap`, BTP Rhone) et NAC118 (`vgp`) ; (2) « Mini-pelle 1.8 t » du 15/10 au 16/10 → MINI12 disponible, MINI07 indisponible avec `workshop` et message contenant « 20/10/2026 » ; (3) « Nacelle 16 m » du 13/10 au 14/10 → aucune disponible, NAC089 indisponible avec `vgp` ; (4) une recherche couvre les machines de toutes les agences (« Compacteur » du 13/10 au 13/10 → COMP21 Lyon Est et COMP30 Annecy disponibles)
+- [X] T009 [P] [US1] Écrire `web/tests/search.test.js` (doit échouer) : (1) « Nacelle 12 m » du 16/10 au 17/10 → disponible NAC140 (agence Grenoble) ; indisponibles NAC112 (`overlap`, BTP Rhone) et NAC118 (`vgp`) ; (2) « Mini-pelle 1.8 t » du 15/10 au 16/10 → MINI12 disponible, MINI07 indisponible avec `workshop` et message contenant « 20/10/2026 » ; (3) « Nacelle 16 m » du 13/10 au 14/10 → aucune disponible, NAC089 indisponible avec `vgp` ; (4) une recherche couvre les machines de toutes les agences (« Compacteur » du 13/10 au 13/10 → COMP21 Lyon Est et COMP30 Annecy disponibles)
 
 ### Implementation for User Story 1
 
-- [ ] T010 [US1] Ajouter `search(state, type, start, end)` dans `web/src/rules.js` → `{ available, unavailable: [{ machine, reasons }] }`, toutes agences, type exact (« Nacelle 12 m » ne renvoie pas de 16 m). T009 doit passer.
-- [ ] T011 [US1] Dans `web/src/app.js`, créer l'état en mémoire à partir de `ValletData` et brancher l'onglet « Rechercher et réserver » : champs **Type de machine** (7 types), **Du**, **Au** (par défaut 12/10/2026), bouton « Rechercher » ; listes « Disponibles » (référence, type, agence) et « Indisponibles » (référence, agence, raisons) ; message « Aucune machine de ce type n'est disponible du … au …. » quand la liste est vide ; dates affichées `JJ/MM/AAAA`
+- [X] T010 [US1] Ajouter `search(state, type, start, end)` dans `web/src/rules.js` → `{ available, unavailable: [{ machine, reasons }] }`, toutes agences, type exact (« Nacelle 12 m » ne renvoie pas de 16 m). T009 doit passer.
+- [X] T011 [US1] Dans `web/src/app.js`, créer l'état en mémoire à partir de `ValletData` et brancher l'onglet « Rechercher et réserver » : champs **Type de machine** (7 types), **Du**, **Au** (par défaut 12/10/2026), bouton « Rechercher » ; listes « Disponibles » (référence, type, agence) et « Indisponibles » (référence, agence, raisons) ; message « Aucune machine de ce type n'est disponible du … au …. » quand la liste est vide ; dates affichées `JJ/MM/AAAA`
 
 **Checkpoint**: la recherche fonctionne seule dans le navigateur ; `search.test.js` passe.
 
@@ -77,12 +77,12 @@ MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W):/ws" -w /ws node:22-alpine node
 
 ### Tests for User Story 2
 
-- [ ] T012 [P] [US2] Écrire `web/tests/booking.test.js` (doit échouer) : (1) COMP30, client « BTP Rhône », du 13/10 au 15/10, saisie Valence → `ok`, la réservation porte `id` 8, `enteredBy: 'Valence'`, et `search` « Compacteur » du 14/10 au 14/10 ne propose plus COMP30 ; (2) NAC112 du 17/10 au 20/10 → refus `overlap` dont le message cite BTP Rhone, 14/10/2026, 18/10/2026 et Lyon Est ; (3) MINI07 du 19/10 au 22/10 → refus `workshop` ; (4) NAC089 du 13/10 au 14/10 → refus `vgp` ; (5) début le 10/10 → refus `past` ; fin le 13/10 pour un début le 15/10 → refus `dateOrder` ; (6) client vide ou agence vide → refus `missingField` ; (7) une réservation d'un seul jour (début = fin = 12/10) sur COMP30 → `ok` ; (8) après un `book` réussi, l'état d'origine passé en argument n'est pas modifié
+- [X] T012 [P] [US2] Écrire `web/tests/booking.test.js` (doit échouer) : (1) COMP30, client « BTP Rhône », du 13/10 au 15/10, saisie Valence → `ok`, la réservation porte `id` 8, `enteredBy: 'Valence'`, et `search` « Compacteur » du 14/10 au 14/10 ne propose plus COMP30 ; (2) NAC112 du 17/10 au 20/10 → refus `overlap` dont le message cite BTP Rhone, 14/10/2026, 18/10/2026 et Lyon Est ; (3) MINI07 du 19/10 au 22/10 → refus `workshop` ; (4) NAC089 du 13/10 au 14/10 → refus `vgp` ; (5) début le 10/10 → refus `past` ; fin le 13/10 pour un début le 15/10 → refus `dateOrder` ; (6) client vide ou agence vide → refus `missingField` ; (7) une réservation d'un seul jour (début = fin = 12/10) sur COMP30 → `ok` ; (8) après un `book` réussi, l'état d'origine passé en argument n'est pas modifié
 
 ### Implementation for User Story 2
 
-- [ ] T013 [US2] Ajouter `validateBooking(state, request)` et `book(state, request)` dans `web/src/rules.js` : `request = { ref, client, start, end, enteredBy }` ; client **obligatoire, non vide** ; agence **obligatoire** ; `start` **≥ date du jour** ; `end` **≥ start** ; puis `machineBlockers` ; `book` renvoie un nouvel état avec la réservation ajoutée (`id` = plus grand id + 1), sans muter l'argument. T012 doit passer.
-- [ ] T014 [US2] Dans `web/src/app.js`, bouton « Réserver » sur chaque machine disponible : formulaire sous la machine avec **Client**, **Agence qui saisit** (7 agences), bouton « Confirmer la réservation de {ref} » ; la règle est revérifiée à la confirmation (pas seulement à la recherche) ; succès → « Réservé : {ref} pour {client} du … au …. » puis relance de la recherche ; refus → « Refusé : » suivi de chaque message, rien n'est enregistré
+- [X] T013 [US2] Ajouter `validateBooking(state, request)` et `book(state, request)` dans `web/src/rules.js` : `request = { ref, client, start, end, enteredBy }` ; client **obligatoire, non vide** ; agence **obligatoire** ; `start` **≥ date du jour** ; `end` **≥ start** ; puis `machineBlockers` ; `book` renvoie un nouvel état avec la réservation ajoutée (`id` = plus grand id + 1), sans muter l'argument. T012 doit passer.
+- [X] T014 [US2] Dans `web/src/app.js`, bouton « Réserver » sur chaque machine disponible : formulaire sous la machine avec **Client**, **Agence qui saisit** (7 agences), bouton « Confirmer la réservation de {ref} » ; la règle est revérifiée à la confirmation (pas seulement à la recherche) ; succès → « Réservé : {ref} pour {client} du … au …. » puis relance de la recherche ; refus → « Refusé : » suivi de chaque message, rien n'est enregistré
 
 **Checkpoint**: US1 + US2 forment le MVP de la démo ; `booking.test.js` passe.
 
@@ -96,12 +96,12 @@ MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W):/ws" -w /ws node:22-alpine node
 
 ### Tests for User Story 3
 
-- [ ] T015 [P] [US3] Écrire `web/tests/workshop.test.js` (doit échouer) : (1) `blockMachine` ECH41 jusqu'au 16/10, motif « bâche déchirée » → `search` « Echafaudage 40 m2 » du 14/10 au 15/10 ne la propose pas, et elle est de nouveau proposée à partir du 17/10 ; (2) `unblockMachine` MINI07 → MINI07 proposée du 15/10 au 16/10 ; (3) `blockMachine` MINI12 jusqu'au 14/10 → la réservation #7 (Artisan Ferreira) passe « à replacer » dans `reservationStatuses` avec le motif `workshop` ; (4) `blockMachine` avec une date avant aujourd'hui ou sans date → refus
+- [X] T015 [P] [US3] Écrire `web/tests/workshop.test.js` (doit échouer) : (1) `blockMachine` ECH41 jusqu'au 16/10, motif « bâche déchirée » → `search` « Echafaudage 40 m2 » du 14/10 au 15/10 ne la propose pas, et elle est de nouveau proposée à partir du 17/10 ; (2) `unblockMachine` MINI07 → MINI07 proposée du 15/10 au 16/10 ; (3) `blockMachine` MINI12 jusqu'au 14/10 → la réservation #7 (Artisan Ferreira) passe « à replacer » dans `reservationStatuses` avec le motif `workshop` ; (4) `blockMachine` avec une date avant aujourd'hui ou sans date → refus
 
 ### Implementation for User Story 3
 
-- [ ] T016 [US3] Ajouter `blockMachine(state, ref, until, reason)`, `unblockMachine(state, ref)` et `reservationStatuses(state)` dans `web/src/rules.js` : statut **calculé, jamais stocké**, réservations parcourues par `id` croissant, une réservation est `toRelocate` si elle chevauche une réservation déjà gardée de la même machine, si la nacelle n'a pas de VGP valide le jour du départ, ou si la machine est à l'atelier sur une partie de la période ; sinon `kept`. T015 doit passer.
-- [ ] T017 [US3] Dans `web/src/app.js`, onglet « Atelier » : tableau du parc (référence, type, agence, échéance VGP pour les nacelles, état « Disponible » ou « À l'atelier jusqu'au … ») ; pour une machine disponible, champs **Jusqu'au** et **Motif** et bouton « Immobiliser {ref} » ; pour une machine à l'atelier, bouton « Remettre en service {ref} » ; si le blocage touche des réservations : « {n} réservation(s) à replacer : voir l'onglet Réservations. »
+- [X] T016 [US3] Ajouter `blockMachine(state, ref, until, reason)`, `unblockMachine(state, ref)` et `reservationStatuses(state)` dans `web/src/rules.js` : statut **calculé, jamais stocké**, réservations parcourues par `id` croissant, une réservation est `toRelocate` si elle chevauche une réservation déjà gardée de la même machine, si la nacelle n'a pas de VGP valide le jour du départ, ou si la machine est à l'atelier sur une partie de la période ; sinon `kept`. T015 doit passer.
+- [X] T017 [US3] Dans `web/src/app.js`, onglet « Atelier » : tableau du parc (référence, type, agence, échéance VGP pour les nacelles, état « Disponible » ou « À l'atelier jusqu'au … ») ; pour une machine disponible, champs **Jusqu'au** et **Motif** et bouton « Immobiliser {ref} » ; pour une machine à l'atelier, bouton « Remettre en service {ref} » ; si le blocage touche des réservations : « {n} réservation(s) à replacer : voir l'onglet Réservations. »
 
 **Checkpoint**: `workshop.test.js` passe ; l'onglet Atelier fonctionne sans toucher aux autres.
 
@@ -115,12 +115,12 @@ MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W):/ws" -w /ws node:22-alpine node
 
 ### Tests for User Story 4
 
-- [ ] T018 [P] [US4] Écrire `web/tests/relocation.test.js` (doit échouer) : (1) avec les données de départ, `reservationStatuses` marque exactement #2 (Maconnerie Duclos, motif `overlap` avec #1) et #3 (Facades Martin, motif `vgp`, message contenant « 05/09/2026 ») comme `toRelocate`, et les 5 autres `kept` ; (2) `alternatives(state, 2)` → `[NAC140]` ; (3) `alternatives(state, 3)` → `[]` ; (4) `relocate(state, 2, 'NAC140')` → `ok`, la réservation #2 garde client, dates et `enteredBy`, porte la ref NAC140 et devient `kept` ; (5) `relocate(state, 2, 'NAC118')` → refus `vgp` ; (6) `relocate` vers une machine d'un autre type → refus
+- [X] T018 [P] [US4] Écrire `web/tests/relocation.test.js` (doit échouer) : (1) avec les données de départ, `reservationStatuses` marque exactement #2 (Maconnerie Duclos, motif `overlap` avec #1) et #3 (Facades Martin, motif `vgp`, message contenant « 05/09/2026 ») comme `toRelocate`, et les 5 autres `kept` ; (2) `alternatives(state, 2)` → `[NAC140]` ; (3) `alternatives(state, 3)` → `[]` ; (4) `relocate(state, 2, 'NAC140')` → `ok`, la réservation #2 garde client, dates et `enteredBy`, porte la ref NAC140 et devient `kept` ; (5) `relocate(state, 2, 'NAC118')` → refus `vgp` ; (6) `relocate` vers une machine d'un autre type → refus
 
 ### Implementation for User Story 4
 
-- [ ] T019 [US4] Ajouter `alternatives(state, reservationId)` et `relocate(state, reservationId, ref)` dans `web/src/rules.js` : mêmes dates, même type, `machineBlockers` en ignorant la réservation elle-même ; sans muter l'argument. T018 doit passer.
-- [ ] T020 [US4] Dans `web/src/app.js`, onglet « Réservations » : bloc « À replacer ({n}) » en tête avec client, machine, dates, motif(s) et un bouton « Transférer sur {ref} » par alternative, ou « Aucune autre machine de ce type n'est disponible sur ces dates. » ; puis tableau de toutes les réservations trié par date de début (machine, type, agence de la machine, client, du, au, saisie par, statut « OK » / « À replacer »)
+- [X] T019 [US4] Ajouter `alternatives(state, reservationId)` et `relocate(state, reservationId, ref)` dans `web/src/rules.js` : mêmes dates, même type, `machineBlockers` en ignorant la réservation elle-même ; sans muter l'argument. T018 doit passer.
+- [X] T020 [US4] Dans `web/src/app.js`, onglet « Réservations » : bloc « À replacer ({n}) » en tête avec client, machine, dates, motif(s) et un bouton « Transférer sur {ref} » par alternative, ou « Aucune autre machine de ce type n'est disponible sur ces dates. » ; puis tableau de toutes les réservations trié par date de début (machine, type, agence de la machine, client, du, au, saisie par, statut « OK » / « À replacer »)
 
 **Checkpoint**: les 4 stories fonctionnent ; tous les fichiers de `web/tests/` passent.
 
@@ -128,10 +128,10 @@ MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W):/ws" -w /ws node:22-alpine node
 
 ## Phase 7: Polish
 
-- [ ] T021 Rafraîchir les trois onglets après chaque action (réservation, blocage, remise en service, transfert) dans `web/src/app.js`, pour que les « à replacer » et les disponibilités soient toujours à jour
-- [ ] T022 Lancer toute la suite `web/tests/` via Docker et corriger jusqu'à 0 échec
-- [ ] T023 Dérouler à la main les 5 tests et les contrôles supplémentaires de [quickstart.md](quickstart.md) en ouvrant `web/index.html` dans un navigateur, et noter le résultat de chacun
-- [ ] T024 Vérifier qu'aucun élément non prévu par la spec n'a été ajouté à l'interface (barème : −1 par ajout non demandé), puis commiter et pousser la branche `001-reservation-multi-agences`
+- [X] T021 Rafraîchir les trois onglets après chaque action (réservation, blocage, remise en service, transfert) dans `web/src/app.js`, pour que les « à replacer » et les disponibilités soient toujours à jour
+- [X] T022 Lancer toute la suite `web/tests/` via Docker et corriger jusqu'à 0 échec
+- [X] T023 Dérouler à la main les 5 tests et les contrôles supplémentaires de [quickstart.md](quickstart.md) en ouvrant `web/index.html` dans un navigateur, et noter le résultat de chacun
+- [X] T024 Vérifier qu'aucun élément non prévu par la spec n'a été ajouté à l'interface (barème : −1 par ajout non demandé), puis commiter et pousser la branche `001-reservation-multi-agences`
 
 ---
 

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vallet Location — Réservations</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="header">
+    <h1 class="header__title">Vallet Location — Réservations</h1>
+    <p class="header__today">Aujourd'hui : lundi 12 octobre 2026</p>
+  </header>
+
+  <nav class="tabs" role="tablist">
+    <button class="tabs__tab" role="tab" id="tab-search" aria-controls="panel-search" aria-selected="true">Rechercher et réserver</button>
+    <button class="tabs__tab" role="tab" id="tab-reservations" aria-controls="panel-reservations" aria-selected="false">Réservations</button>
+    <button class="tabs__tab" role="tab" id="tab-workshop" aria-controls="panel-workshop" aria-selected="false">Atelier</button>
+  </nav>
+
+  <main class="main">
+    <section class="panel" id="panel-search" role="tabpanel" aria-labelledby="tab-search"></section>
+    <section class="panel" id="panel-reservations" role="tabpanel" aria-labelledby="tab-reservations" hidden></section>
+    <section class="panel" id="panel-workshop" role="tabpanel" aria-labelledby="tab-workshop" hidden></section>
+  </main>
+
+  <script src="src/data.js"></script>
+  <script src="src/rules.js"></script>
+  <script src="src/app.js"></script>
+</body>
+</html>

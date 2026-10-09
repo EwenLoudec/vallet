@@ -14,7 +14,7 @@
 
 ## 3. Tests
 
-- **Decision**: `node --test web/tests/` dans `node:22-alpine` via Docker.
+- **Decision**: `node --test 'web/tests/*.test.js'` dans `node:22-alpine` via Docker.
 - **Rationale**: `node:test` est intégré à Node, donc aucune dépendance à installer ; Docker est déjà en place sur le poste.
 - **Alternatives considered**: Jest, Vitest : nécessitent `npm install`. Tests manuels seuls : ne protègent pas des régressions.
 

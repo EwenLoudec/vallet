@@ -9,7 +9,7 @@ Double-cliquez sur `web/index.html`. Aucune installation ni aucun serveur n'est 
 Depuis la racine du workspace, avec Docker démarré :
 
 ```bash
-MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W 2>/dev/null || pwd):/ws" -w /ws node:22-alpine node --test web/tests/
+MSYS_NO_PATHCONV=1 docker run --rm -v "$(pwd -W 2>/dev/null || pwd):/ws" -w /ws node:22-alpine node --test 'web/tests/*.test.js'
 ```
 
 Attendu : tous les tests passent, avec un test par scénario de la spec.
