@@ -125,21 +125,62 @@ var ValletDom = (() => {
     ])));
   };
 
+  const PHOTO_MAX_SIDE = 1024;
+  const PHOTO_QUALITY = 0.8;
+
+  const shrinkPhoto = (file) => new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(file);
+    const image = new Image();
+    image.onload = () => {
+      const scale = Math.min(1, PHOTO_MAX_SIDE / Math.max(image.naturalWidth, image.naturalHeight));
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.max(1, Math.round(image.naturalWidth * scale));
+      canvas.height = Math.max(1, Math.round(image.naturalHeight * scale));
+      canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(objectUrl);
+      resolve({ name: file.name, url: canvas.toDataURL('image/jpeg', PHOTO_QUALITY) });
+    };
+    image.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error(`Photo illisible : ${file.name}`));
+    };
+    image.src = objectUrl;
+  });
+
   const photoPicker = (label, photos) => {
     const gallery = createElement('div', { className: 'gallery gallery--small' });
-    const counter = createElement('span', { className: 'field__hint' });
+    const counter = createElement('span', { className: 'field__hint', 'aria-live': 'polite' });
+    let pending = 0;
+    const failures = [];
     const refresh = () => {
       gallery.replaceChildren(...photos.map((photo) => createElement('figure', { className: 'gallery__item' }, [
         createElement('img', { className: 'gallery__image', src: photo.url, alt: photo.name }),
       ])));
-      counter.textContent = photos.length === 0 ? 'Aucune photo pour le moment.' : `${photos.length} photo(s) ajoutée(s).`;
+      const parts = [photos.length === 0 ? 'Aucune photo pour le moment.' : `${photos.length} photo(s) ajoutée(s).`];
+      if (pending > 0) {
+        parts.push(`Préparation de ${pending} photo(s)…`);
+      }
+      if (failures.length > 0) {
+        parts.push(`${failures.join(', ')} : format non reconnu.`);
+      }
+      counter.textContent = parts.join(' ');
     };
     const input = createElement('input', {
       className: 'photo-picker__input', type: 'file', accept: 'image/*', multiple: true, capture: 'environment',
       onChange: (event) => {
-        [...event.target.files].forEach((file) => photos.push({ name: file.name, url: URL.createObjectURL(file) }));
+        const files = [...event.target.files];
         event.target.value = '';
+        pending += files.length;
         refresh();
+        files.forEach((file) => {
+          shrinkPhoto(file)
+            .then((photo) => photos.push(photo))
+            .catch(() => failures.push(file.name))
+            .finally(() => {
+              pending -= 1;
+              refresh();
+            });
+        });
       },
     });
     refresh();

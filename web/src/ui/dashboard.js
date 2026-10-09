@@ -60,9 +60,17 @@ ValletViews.dashboard = (app) => {
 
   return [
     createElement('div', { className: 'section-header section-header--first' }, [
-      createElement('h2', { textContent: 'Pilotage' }),
-      createElement('p', { className: 'field__hint', textContent: `Situation au ${formatDate(state.today)}, mise à jour à chaque action.` }),
+      createElement('div', {}, [
+        createElement('h2', { textContent: 'Pilotage' }),
+        createElement('p', { className: 'field__hint', textContent: `Situation au ${formatDate(state.today)}, mise à jour à chaque action et conservée dans ce navigateur.` }),
+      ]),
+      ValletDom.button('Réinitialiser la démonstration', () => {
+        if (window.confirm('Remettre toutes les données de démonstration à leur état de départ ? Les réservations, photos, signatures et le journal saisis seront effacés de ce navigateur.')) {
+          app.resetDemo();
+        }
+      }, 'danger'),
     ]),
+    ValletDom.flashMessage(app.view.dashboardMessage),
     tiles,
     renderJournal(),
     createElement('h2', { className: 'section-title', textContent: 'Occupation par agence — semaines 42 à 44' }),

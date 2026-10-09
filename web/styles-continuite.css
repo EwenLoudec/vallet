@@ -1,0 +1,78 @@
+.storage-warning {
+  margin: 0;
+  padding: 8px 32px;
+  font-weight: 600;
+  color: var(--color-warning-text);
+  background: var(--color-warning-background);
+  border-bottom: 1px solid var(--color-warning-dot);
+}
+
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-large);
+  box-shadow: var(--shadow-card);
+}
+
+.filters .field--wide {
+  flex: 1 1 320px;
+}
+
+.filters .field--wide .field__input {
+  width: 100%;
+}
+
+.empty--action {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.machine-link {
+  padding: 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  font: inherit;
+  font-weight: 800;
+  color: var(--color-ink);
+  background: none;
+  cursor: pointer;
+  font-variant-numeric: tabular-nums;
+}
+
+.machine-link:hover {
+  color: var(--xefi-red);
+  border-bottom-color: currentColor;
+}
+
+.machine-link:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+  border-radius: var(--radius-small);
+}
+
+.planning__machine .machine-link {
+  display: block;
+}
+
+.panel .machine-detail__title,
+.modal .machine-detail__title {
+  margin: 24px 0 8px;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-ink);
+}
+
+@media (max-width: 720px) {
+  .storage-warning {
+    padding: 8px 16px;
+  }
+}

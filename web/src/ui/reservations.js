@@ -1,5 +1,5 @@
 ValletViews.reservations = (app) => {
-  const { createElement, button, reasonList, flashMessage, table, cell, refCell, actionCell, badge, emptyState } = ValletDom;
+  const { createElement, button, reasonList, flashMessage, table, cell, actionCell, badge, emptyState } = ValletDom;
   const { formatDate } = ValletRules;
   const { view } = app;
   const state = app.getState();
@@ -68,9 +68,45 @@ ValletViews.reservations = (app) => {
     app.render();
   };
 
+  const STAGE_OPTIONS = [{ value: '', label: 'Toutes les étapes' }, ...Object.entries(STAGE_LABELS).map(([value, [label]]) => ({ value, label }))];
+  const filter = view.reservationFilter;
+  const isFiltered = Boolean(filter.query.trim() || filter.agency || filter.stage);
+
+  const updateFilter = (changes) => {
+    view.reservationFilter = { ...view.reservationFilter, ...changes };
+    app.render();
+  };
+
+  const clearFilters = () => updateFilter({ query: '', agency: '', stage: '' });
+
+  const renderFilters = () => {
+    const { field, selectInput } = ValletDom;
+    const queryInput = createElement('input', {
+      className: 'field__input', type: 'search', name: 'query', value: filter.query,
+      placeholder: 'Client, machine, n°, bon de commande…', 'data-focus-key': 'reservation-search', autocomplete: 'off',
+    });
+    queryInput.addEventListener('input', () => updateFilter({ query: queryInput.value }));
+    const agencySelect = selectInput('agency', [{ value: '', label: 'Toutes les agences' }, ...ValletData.agencies], filter.agency);
+    agencySelect.addEventListener('change', () => updateFilter({ agency: agencySelect.value }));
+    const stageSelect = selectInput('stage', STAGE_OPTIONS, filter.stage);
+    stageSelect.addEventListener('change', () => updateFilter({ stage: stageSelect.value }));
+    return createElement('div', { className: 'filters', role: 'search' }, [
+      createElement('div', { className: 'field field--wide' }, [
+        createElement('label', { className: 'field__label', htmlFor: 'reservation-query', textContent: 'Rechercher une réservation' }),
+        (() => {
+          queryInput.id = 'reservation-query';
+          return queryInput;
+        })(),
+      ]),
+      field("Agence de la machine", agencySelect),
+      field('Étape', stageSelect),
+      isFiltered ? button('Effacer les filtres', clearFilters) : null,
+    ]);
+  };
+
   const statuses = ValletRules.reservationStatuses(state);
-  const rows = [...statuses]
-    .sort((first, second) => first.reservation.start.localeCompare(second.reservation.start) || first.reservation.id - second.reservation.id)
+  const filtered = ValletFilters.reservations(state, view.reservationFilter);
+  const rows = filtered
     .map((evaluation) => {
       const { reservation } = evaluation;
       const machine = findMachine(reservation.ref);
@@ -78,7 +114,7 @@ ValletViews.reservations = (app) => {
       const [stageLabel, stageKind] = STAGE_LABELS[reservation.stage];
       const isOpen = view.openReservationId === reservation.id;
       return createElement('tr', { className: isOpen ? 'is-selected' : null }, [
-        refCell(machine.ref),
+        cell(ValletViews.machineLink(app, machine.ref)),
         cell(machine.type),
         cell(machine.agency),
         cell([
@@ -105,9 +141,15 @@ ValletViews.reservations = (app) => {
     flashMessage(view.reservationsMessage),
     renderToRelocate(statuses),
     createElement('div', { className: 'section-header' }, [
-      createElement('h2', { textContent: 'Toutes les réservations' }),
+      createElement('h2', { textContent: isFiltered ? `Réservations trouvées (${filtered.length} sur ${statuses.length})` : `Toutes les réservations (${statuses.length})` }),
       button('Exporter pour la facturation (CSV)', exportBilling),
     ]),
-    rows.length === 0 ? emptyState('Aucune réservation.') : table(['Machine', 'Type', 'Agence de la machine', 'Client', 'Du', 'Au', 'Saisie par', 'Statut', 'Étape', ''], rows),
+    renderFilters(),
+    rows.length === 0
+      ? createElement('div', { className: 'empty empty--action' }, [
+        createElement('span', { textContent: isFiltered ? 'Aucune réservation ne correspond à ces critères.' : 'Aucune réservation.' }),
+        isFiltered ? button('Effacer les filtres', clearFilters) : null,
+      ])
+      : table(['Machine', 'Type', 'Agence de la machine', 'Client', 'Du', 'Au', 'Saisie par', 'Statut', 'Étape', ''], rows),
   ];
 };

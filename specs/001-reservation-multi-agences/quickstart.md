@@ -2,7 +2,7 @@
 
 ## Lancer le prototype
 
-Double-cliquez sur `web/index.html`. Aucune installation ni aucun serveur n'est nécessaire. Recharger la page remet les données de départ.
+Double-cliquez sur `web/index.html`. Aucune installation ni aucun serveur n'est nécessaire. Les données sont conservées dans le navigateur ; pour rejouer la recette depuis les données de départ, utilisez « Réinitialiser la démonstration » dans l'onglet Pilotage.
 
 ## Lancer les tests des règles
 

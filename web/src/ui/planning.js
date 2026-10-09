@@ -115,7 +115,7 @@ ValletViews.planning = (app) => {
 
   const bodyRows = rows.map((row) => createElement('tr', {}, [
     createElement('th', { className: 'planning__machine', scope: 'row' }, [
-      createElement('span', { className: 'table__ref', textContent: row.machine.ref }),
+      ValletViews.machineLink(app, row.machine.ref),
       createElement('span', { className: 'planning__machine-meta', textContent: `${row.machine.type} · ${row.machine.agency}` }),
     ]),
     ...row.cells.map((cell, index) => renderCell(row.cells, index, days[index])),

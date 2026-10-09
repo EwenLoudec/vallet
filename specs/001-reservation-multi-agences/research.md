@@ -37,6 +37,8 @@
 
 ## 7. Persistance
 
+> Remplacée le 09/10/2026 par la feature 005 : l'état est désormais conservé dans le navigateur (`localStorage`), avec un bouton « Réinitialiser la démonstration » dans l'onglet Pilotage pour retrouver les scénarios reproductibles.
+
 - **Decision**: aucune ; l'état vit en mémoire.
 - **Rationale**: le prototype sert une recette de 8 minutes par binôme ; repartir des données de départ à chaque rechargement rend les scénarios de Brice reproductibles. La spec ne demande pas de conserver les saisies.
 - **Alternatives considered**: `localStorage` : des réservations de test persisteraient d'une recette à l'autre.

@@ -1,5 +1,5 @@
 ValletViews.workshop = (app) => {
-  const { createElement, button, submitButton, field, dateInput, textInput, errorMessage, flashMessage, table, cell, refCell, badge, emptyState, formValue } = ValletDom;
+  const { createElement, button, submitButton, field, dateInput, textInput, errorMessage, flashMessage, table, cell, badge, emptyState, formValue } = ValletDom;
   const { formatDate } = ValletRules;
   const { view } = app;
   const state = app.getState();
@@ -59,7 +59,7 @@ ValletViews.workshop = (app) => {
       const status = ValletFleet.vgpStatus(state, machine);
       const reasons = view.vgpReasonsByRef[machine.ref] || [];
       return createElement('tr', {}, [
-        refCell(machine.ref),
+        cell(ValletViews.machineLink(app, machine.ref)),
         cell(machine.agency),
         cell(machine.lastVgp ? formatDate(machine.lastVgp) : '—'),
         cell(status.expiry ? formatDate(status.expiry) : '—'),
@@ -122,7 +122,7 @@ ValletViews.workshop = (app) => {
   };
 
   const fleetRows = state.machines.filter((machine) => !ValletRules.isSold(machine)).map((machine) => createElement('tr', {}, [
-    refCell(machine.ref),
+    cell(ValletViews.machineLink(app, machine.ref)),
     cell(machine.type),
     cell(machine.agency),
     cell(machine.workshop

@@ -1,8 +1,9 @@
 (() => {
   const { createElement, avatar, button } = ValletDom;
-  const SESSION_KEY = 'vallet.session';
+  const DATA_KEY = 'vallet.data';
+  const STORAGE_WARNING = 'Les dernières modifications ne seront pas conservées après fermeture : stockage du navigateur indisponible ou plein.';
 
-  let state = JSON.parse(JSON.stringify({
+  const seedState = () => JSON.parse(JSON.stringify({
     today: ValletData.today,
     machines: ValletData.machines,
     reservations: ValletData.reservations,
@@ -11,7 +12,27 @@
     inboxRead: ValletData.inboxRead,
     journal: ValletData.journal,
   }));
+
+  const readSavedData = () => {
+    try {
+      return window.localStorage.getItem(DATA_KEY);
+    } catch (error) {
+      return null;
+    }
+  };
+
+  let state = ValletPersistence.restore(readSavedData(), seedState()).state;
   let currentUser = null;
+  let storageWarning = null;
+
+  const saveState = () => {
+    try {
+      window.localStorage.setItem(DATA_KEY, ValletPersistence.serialize(state));
+      storageWarning = null;
+    } catch (error) {
+      storageWarning = STORAGE_WARNING;
+    }
+  };
 
   const machineTypes = [...new Set(ValletData.machines.map((machine) => machine.type))];
 
@@ -24,6 +45,10 @@
     searchMessage: null,
     reservationsMessage: null,
     openReservationId: null,
+    openMachineRef: null,
+    modalScrollToTop: false,
+    reservationFilter: { query: '', agency: '', stage: '' },
+    dashboardMessage: null,
     drafts: {},
     modalScrollToMessage: false,
     document: null,
@@ -52,29 +77,7 @@
 
   const allUsers = [...ValletData.users, ...ValletData.clientUsers];
 
-  const storage = {
-    read: () => {
-      try {
-        return window.sessionStorage.getItem(SESSION_KEY);
-      } catch (error) {
-        return null;
-      }
-    },
-    write: (email) => {
-      try {
-        window.sessionStorage.setItem(SESSION_KEY, email);
-      } catch (error) {
-        return;
-      }
-    },
-    clear: () => {
-      try {
-        window.sessionStorage.removeItem(SESSION_KEY);
-      } catch (error) {
-        return;
-      }
-    },
-  };
+  const storage = ValletSession;
 
   const screens = {
     login: document.getElementById('login-screen'),
@@ -101,13 +104,17 @@
     getState: () => state,
     setState: (nextState) => {
       state = nextState;
+      saveState();
     },
     commit: (nextState, text) => {
       state = ValletJournal.record(nextState, currentUser ? currentUser.name : 'Visiteur', text);
+      saveState();
     },
     commitAs: (nextState, author, text) => {
       state = ValletJournal.record(nextState, author, text);
+      saveState();
     },
+    getStorageWarning: () => storageWarning,
     getUser: () => currentUser,
     allUsers,
   };
@@ -145,39 +152,47 @@
     document.body.classList.toggle('has-certificate', Boolean(certificate));
   };
 
-  let focusBeforeModal = null;
+  const modal = ValletModal.create(app);
+  const renderModal = modal.render;
 
-  const renderModal = () => {
-    const root = document.getElementById('modal-root');
-    const reservation = view.screen === 'app' && view.openReservationId !== null
-      ? ValletRules.findReservation(state, view.openReservationId)
-      : null;
-    if (!reservation) {
-      root.replaceChildren();
-      document.body.classList.remove('has-modal');
+  const renderStorageWarning = () => {
+    const banner = document.getElementById('storage-warning');
+    banner.textContent = storageWarning || '';
+    banner.hidden = !storageWarning;
+  };
+
+  const captureFocus = () => {
+    const active = document.activeElement;
+    if (!active || !active.dataset || !active.dataset.focusKey) {
+      return null;
+    }
+    return {
+      key: active.dataset.focusKey,
+      selection: typeof active.selectionStart === 'number' ? [active.selectionStart, active.selectionEnd] : null,
+    };
+  };
+
+  const restoreFocus = (focus) => {
+    if (!focus) {
       return;
     }
-    const previousOverlay = root.querySelector('.modal-overlay');
-    const wasOpen = Boolean(previousOverlay);
-    const previousScroll = wasOpen ? previousOverlay.scrollTop : 0;
-    const focusWasInside = wasOpen && root.contains(document.activeElement);
-    const { overlay, dialog } = ValletViews.reservationModal(app, reservation);
-    root.replaceChildren(overlay);
-    document.body.classList.add('has-modal');
-    overlay.scrollTop = previousScroll;
-    if (view.modalScrollToMessage) {
-      view.modalScrollToMessage = false;
-      const message = dialog.querySelector('.message--error, .message--success, .message--warning');
-      if (message) {
-        message.scrollIntoView({ block: 'center' });
-      }
+    const target = document.querySelector(`[data-focus-key="${focus.key}"]`);
+    if (!target || document.activeElement === target) {
+      return;
     }
-    if (!wasOpen || focusWasInside || document.activeElement === document.body) {
-      dialog.focus({ preventScroll: true });
+    target.focus({ preventScroll: true });
+    if (focus.selection && typeof target.setSelectionRange === 'function') {
+      target.setSelectionRange(focus.selection[0], focus.selection[1]);
     }
   };
 
   app.render = () => {
+    const focus = captureFocus();
+    renderScreen();
+    restoreFocus(focus);
+  };
+
+  const renderScreen = () => {
     if (view.screen === 'public') {
       screens.public.replaceChildren(...ValletViews.publicSpace(app).filter(Boolean));
       renderModal();
@@ -196,6 +211,7 @@
     }
     renderUserArea();
     renderTabCounters();
+    renderStorageWarning();
     Object.entries(panels).forEach(([panelId, renderPanel]) => {
       document.getElementById(panelId).replaceChildren(...renderPanel(app).filter(Boolean));
     });
@@ -241,23 +257,21 @@
     app.render();
   };
 
-  app.openReservation = (reservationId) => {
-    focusBeforeModal = document.activeElement;
-    view.openReservationId = reservationId;
-    app.render();
-  };
+  app.openReservation = modal.openReservation;
+  app.openMachine = modal.openMachine;
+  app.closeModal = modal.close;
+  app.closeReservation = modal.close;
 
-  app.closeReservation = () => {
-    const focusKey = focusBeforeModal && focusBeforeModal.dataset ? focusBeforeModal.dataset.focusKey : null;
+  app.resetDemo = () => {
+    state = seedState();
+    saveState();
+    view.drafts = {};
     view.openReservationId = null;
+    view.openMachineRef = null;
+    view.hasSearched = false;
+    view.reservationFilter = { query: '', agency: '', stage: '' };
+    view.dashboardMessage = { kind: 'success', text: 'Données de démonstration rétablies : les données de départ sont revenues.' };
     app.render();
-    const target = focusKey
-      ? document.querySelector(`[data-focus-key="${focusKey}"]`)
-      : focusBeforeModal;
-    if (target && document.body.contains(target)) {
-      target.focus();
-    }
-    focusBeforeModal = null;
   };
 
   const enter = (user) => {
@@ -287,6 +301,7 @@
     view.inboxOpen = false;
     view.clientSearched = false;
     view.openReservationId = null;
+    view.openMachineRef = null;
     view.document = null;
     renderCertificate();
     app.showLogin();
@@ -304,8 +319,8 @@
       app.closeCertificate();
       return;
     }
-    if (view.openReservationId !== null && view.screen === 'app') {
-      app.closeReservation();
+    if (modal.isOpen() && view.screen === 'app') {
+      app.closeModal();
     }
   });
 

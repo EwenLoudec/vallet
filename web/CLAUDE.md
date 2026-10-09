@@ -17,14 +17,17 @@ HTML, CSS et JavaScript statiques. Aucune dépendance, aucune compilation. Les s
 - `src/dashboard.js` : indicateurs de pilotage (`ValletDashboard`)
 - `src/changes.js` : modification, annulation, bon de commande, prochaine disponibilité (`ValletChanges`)
 - `src/journal.js` : journal d'activité (`ValletJournal`)
+- `src/persistence.js` : enregistrement et relecture de l'état, avec contrôle de version (`ValletPersistence`)
+- `src/filters.js` : recherche dans les réservations (`ValletFilters`)
+- `src/machines.js` : historique d'une machine (`ValletMachines`)
 - `src/ui/*.js` : une vue par écran, enregistrée dans `ValletViews` ; `ui/dom.js` fournit la fabrique d'éléments
 - `src/app.js` : état en mémoire, session, navigation et rendu
 
-Les modules `data`, `rules`, `fleet`, `operations`, `auth`, `accounts`, `planning`, `inbox`, `dashboard`, `changes` et `journal` sont purs et exposent aussi `module.exports` pour être testés sous Node. Toute règle va dans ces modules, jamais dans `ui/` ni `app.js`. L'ordre des `<script>` de `index.html` compte : modules purs, puis `ui/dom.js`, puis les vues, puis `app.js`.
+Les modules `data`, `rules`, `fleet`, `operations`, `auth`, `accounts`, `planning`, `inbox`, `dashboard`, `changes`, `journal`, `persistence`, `filters` et `machines` sont purs et exposent aussi `module.exports` pour être testés sous Node. Toute règle va dans ces modules, jamais dans `ui/` ni `app.js`. L'ordre des `<script>` de `index.html` compte : modules purs, puis `ui/dom.js`, puis les vues, puis `app.js`.
 
 ## Lancer
 
-Double-cliquez sur `web/index.html`. Recharger la page remet les données de départ.
+Double-cliquez sur `web/index.html`. Les données sont conservées dans le navigateur (`localStorage`, clé `vallet.data`) ; « Réinitialiser la démonstration » (onglet Pilotage) remet les données de départ.
 
 ## Tester
 

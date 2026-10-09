@@ -51,7 +51,10 @@ ValletViews.reservationDetail = (app, reservation) => {
     reservation.contact ? summaryItem('Contact', reservation.contact) : null,
     reservation.keyAccountId ? summaryItem('Grand compte', `${ValletAccounts.findAccount(state, reservation.keyAccountId).name} · ${ValletAccounts.findAccount(state, reservation.keyAccountId).salesRep}`) : null,
     reservation.keyAccountId ? summaryItem('Bon de commande', reservation.purchaseOrder || 'À fournir') : null,
-    summaryItem('Machine', `${machine.ref} · ${machine.type}`),
+    createElement('div', { className: 'summary__item' }, [
+      createElement('span', { className: 'summary__label', textContent: 'Machine' }),
+      createElement('span', { className: 'summary__value' }, [ValletViews.machineLink(app, machine.ref), ` · ${machine.type}`]),
+    ]),
     summaryItem('Agence', machine.agency),
     summaryItem('Période', `du ${formatDate(reservation.start)} au ${formatDate(reservation.end)}`),
     summaryItem('Saisie par', reservation.enteredBy),
