@@ -43,6 +43,8 @@ ValletViews.reservationDetail = (app, reservation) => {
     summaryItem('Client', reservation.client),
     summaryItem('Type de client', isPrivate ? 'Particulier' : 'Professionnel'),
     reservation.contact ? summaryItem('Contact', reservation.contact) : null,
+    reservation.keyAccountId ? summaryItem('Grand compte', `${ValletAccounts.findAccount(state, reservation.keyAccountId).name} · ${ValletAccounts.findAccount(state, reservation.keyAccountId).salesRep}`) : null,
+    reservation.keyAccountId ? summaryItem('Bon de commande', reservation.purchaseOrder || 'À fournir') : null,
     summaryItem('Machine', `${machine.ref} · ${machine.type}`),
     summaryItem('Agence', machine.agency),
     summaryItem('Période', `du ${formatDate(reservation.start)} au ${formatDate(reservation.end)}`),
@@ -129,6 +131,7 @@ ValletViews.reservationDetail = (app, reservation) => {
     createElement('h4', { textContent: title }),
     inspection ? createElement('p', { className: 'inspection__meta', textContent: `Le ${formatDate(inspection.date)}${inspection.notes ? ` · ${inspection.notes}` : ''}` }) : null,
     inspection && inspection.imported ? createElement('span', { className: 'badge badge--warning', textContent: 'Sortie sans photo (reprise Excel)' }) : null,
+    inspection && inspection.certificateSentTo ? createElement('span', { className: 'badge badge--ok', textContent: `Attestation VGP envoyée à ${inspection.certificateSentTo.email} le ${formatDate(inspection.certificateSentTo.date)} (envoi simulé)` }) : null,
     inspection ? photoGallery(inspection.photos, 'Aucune photo.') : createElement('p', { className: 'empty', textContent: emptyText }),
   ]);
 
@@ -169,6 +172,7 @@ ValletViews.reservationDetail = (app, reservation) => {
       ]),
     ]),
     renderSummary(),
+    ValletAccounts.missingPurchaseOrder(reservation) ? flashMessage({ kind: 'warning', text: 'Bon de commande à fournir : ce grand compte passe par des bons de commande.' }) : null,
     flashMessage(draft.message),
     draft.reasons.length > 0 ? errorMessage(draft.reasons) : null,
     reservation.stage === 'booked' ? renderDepartureForm() : null,

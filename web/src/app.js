@@ -7,6 +7,8 @@
     machines: ValletData.machines,
     reservations: ValletData.reservations,
     leads: ValletData.leads,
+    keyAccounts: ValletData.keyAccounts,
+    inboxRead: ValletData.inboxRead,
   }));
   let currentUser = null;
 
@@ -40,7 +42,13 @@
     usedRequestRef: null,
     usedReasons: [],
     usedMessage: null,
+    planningAgency: '',
+    inboxOpen: false,
+    clientCriteria: { type: machineTypes[0], start: ValletData.today, end: ValletData.today },
+    clientSearched: false,
   };
+
+  const allUsers = [...ValletData.users, ...ValletData.clientUsers];
 
   const storage = {
     read: () => {
@@ -70,13 +78,16 @@
     login: document.getElementById('login-screen'),
     app: document.getElementById('app-shell'),
     public: document.getElementById('public-screen'),
+    client: document.getElementById('client-screen'),
   };
 
   const panels = {
     'panel-search': ValletViews.search,
     'panel-reservations': ValletViews.reservations,
+    'panel-planning': ValletViews.planning,
     'panel-workshop': ValletViews.workshop,
     'panel-sales': ValletViews.sales,
+    'panel-dashboard': ValletViews.dashboard,
   };
 
   const describeRole = (user) => (user.agency ? `${user.role} · ${user.agency}` : user.role);
@@ -90,6 +101,7 @@
       state = nextState;
     },
     getUser: () => currentUser,
+    allUsers,
   };
 
   const showScreen = (name) => {
@@ -101,6 +113,7 @@
 
   const renderUserArea = () => {
     document.getElementById('user-area').replaceChildren(
+      ...[ValletViews.inbox(app)].filter(Boolean),
       avatar(currentUser.name, 'user__avatar'),
       createElement('div', { className: 'user__identity' }, [
         createElement('span', { className: 'user__name', textContent: currentUser.name }),
@@ -130,6 +143,11 @@
     }
     if (view.screen === 'login') {
       screens.login.replaceChildren(...ValletViews.login(app).filter(Boolean));
+      return;
+    }
+    if (view.screen === 'client') {
+      screens.client.replaceChildren(...ValletViews.client(app).filter(Boolean));
+      renderCertificate();
       return;
     }
     renderUserArea();
@@ -173,19 +191,43 @@
     app.render();
   };
 
-  app.signIn = (user) => {
+  app.openReservation = (reservationId) => {
+    view.openReservationId = reservationId;
+    view.reservationsMessage = null;
+    selectTab(document.getElementById('tab-reservations'));
+    app.render();
+    const detail = document.querySelector('#panel-reservations .detail');
+    if (detail) {
+      detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  const enter = (user) => {
     currentUser = user;
-    storage.write(user.email);
-    view.loginError = null;
-    view.loginEmail = '';
+    view.planningAgency = user.agency || '';
+    view.inboxOpen = false;
+    if (user.keyAccountId) {
+      showScreen('client');
+      app.render();
+      return;
+    }
     selectTab(document.getElementById('tab-search'));
     showScreen('app');
     app.render();
   };
 
+  app.signIn = (user) => {
+    storage.write(user.email);
+    view.loginError = null;
+    view.loginEmail = '';
+    enter(user);
+  };
+
   app.signOut = () => {
     currentUser = null;
     storage.clear();
+    view.inboxOpen = false;
+    view.clientSearched = false;
     view.certificateId = null;
     renderCertificate();
     app.showLogin();
@@ -202,11 +244,9 @@
   });
 
   const sessionEmail = storage.read();
-  const sessionUser = sessionEmail ? ValletAuth.findUser(ValletData.users, sessionEmail) : null;
+  const sessionUser = sessionEmail ? ValletAuth.findUser(allUsers, sessionEmail) : null;
   if (sessionUser) {
-    currentUser = sessionUser;
-    showScreen('app');
-    app.render();
+    enter(sessionUser);
   } else {
     app.showLogin();
   }

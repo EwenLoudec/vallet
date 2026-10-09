@@ -12,6 +12,15 @@ ValletViews.search = (app) => {
   };
 
   const renderBookingForm = (machine) => {
+    const accountHint = createElement('span', { className: 'field__hint', textContent: 'Saisissez le client : les grands comptes sont reconnus automatiquement.' });
+    const clientInput = textInput('client');
+    clientInput.addEventListener('input', () => {
+      const account = ValletRules.findKeyAccount(app.getState(), clientInput.value);
+      accountHint.textContent = account
+        ? `Grand compte reconnu : ${account.name} (commerciale : ${account.salesRep}). Indiquez le bon de commande.`
+        : 'Saisissez le client : les grands comptes sont reconnus automatiquement.';
+      accountHint.classList.toggle('field__hint--strong', Boolean(account));
+    });
     const form = createElement('form', {
       className: 'form booking-form',
       onSubmit: (event) => {
@@ -22,6 +31,7 @@ ValletViews.search = (app) => {
           end: view.searchCriteria.end,
           enteredBy: formValue(event.target, 'enteredBy'),
           customerType: event.target.elements.isPrivate.checked ? ValletRules.PRIVATE_CUSTOMER : ValletRules.PROFESSIONAL_CUSTOMER,
+          purchaseOrder: formValue(event.target, 'purchaseOrder'),
         };
         const result = ValletRules.book(app.getState(), request);
         if (!result.ok) {
@@ -32,14 +42,20 @@ ValletViews.search = (app) => {
         app.setState(result.state);
         view.openBookingRef = null;
         view.bookingReasons = [];
+        const missingOrder = ValletAccounts.missingPurchaseOrder(result.reservation);
         view.searchMessage = {
-          kind: 'success',
-          text: `Réservé : ${machine.ref} pour ${result.reservation.client} du ${formatDate(request.start)} au ${formatDate(request.end)}.`,
+          kind: missingOrder ? 'warning' : 'success',
+          text: `Réservé : ${machine.ref} pour ${result.reservation.client} du ${formatDate(request.start)} au ${formatDate(request.end)}.${missingOrder ? ' Bon de commande à fournir (grand compte).' : ''}`,
         };
         app.render();
       },
     }, [
-      field('Client', textInput('client')),
+      createElement('div', { className: 'field field--wide' }, [
+        createElement('span', { className: 'field__label', textContent: 'Client' }),
+        clientInput,
+        accountHint,
+      ]),
+      field('Bon de commande', textInput('purchaseOrder'), 'Grands comptes'),
       field('Agence qui saisit', selectInput('enteredBy', ValletData.agencies, (user && user.agency) || '', 'Choisissez une agence')),
       checkbox('isPrivate', 'Client particulier', false),
       submitButton(`Confirmer la réservation de ${machine.ref}`),

@@ -71,12 +71,16 @@ var ValletOperations = (() => {
       return { ok: false, reasons };
     }
     const deposit = isPrivate ? { amount: parseAmount(departure.deposit.amount), method: departure.deposit.method } : null;
+    const recordedDeparture = { date, photos: [...departure.photos], notes: (departure.notes || '').trim(), deposit, imported: false };
+    const keyAccount = reservation.keyAccountId
+      ? (state.keyAccounts || []).find((account) => account.id === reservation.keyAccountId)
+      : null;
+    if (keyAccount && Rules.isNacelle(machine)) {
+      recordedDeparture.certificateSentTo = { email: keyAccount.contactEmail, date: state.today };
+    }
     return {
       ok: true,
-      state: replaceReservation(state, id, {
-        stage: 'out',
-        departure: { date, photos: [...departure.photos], notes: (departure.notes || '').trim(), deposit, imported: false },
-      }),
+      state: replaceReservation(state, id, { stage: 'out', departure: recordedDeparture }),
     };
   };
 

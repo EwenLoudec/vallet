@@ -10,11 +10,14 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="styles-operations.css">
+  <link rel="stylesheet" href="styles-pilotage.css">
 </head>
 <body>
   <div class="login" id="login-screen" hidden></div>
 
   <div class="public" id="public-screen" hidden></div>
+
+  <div class="public" id="client-screen" hidden></div>
 
   <div class="app" id="app-shell" hidden>
     <header class="header">
@@ -38,6 +41,10 @@
         <svg class="tabs__icon" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
         <span>Réservations</span>
       </button>
+      <button class="tabs__tab" role="tab" id="tab-planning" aria-controls="panel-planning" aria-selected="false">
+        <svg class="tabs__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h18M3 10h18M3 16h18M7 4v16M13 10v6M17 4v6"/></svg>
+        <span>Planning</span>
+      </button>
       <button class="tabs__tab" role="tab" id="tab-workshop" aria-controls="panel-workshop" aria-selected="false">
         <svg class="tabs__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8V21h3.2l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg>
         <span id="tab-workshop-label">Atelier</span>
@@ -46,13 +53,19 @@
         <svg class="tabs__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
         <span>Ventes</span>
       </button>
+      <button class="tabs__tab" role="tab" id="tab-dashboard" aria-controls="panel-dashboard" aria-selected="false">
+        <svg class="tabs__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>
+        <span>Pilotage</span>
+      </button>
     </nav>
 
     <main class="main">
       <section class="panel" id="panel-search" role="tabpanel" aria-labelledby="tab-search"></section>
       <section class="panel" id="panel-reservations" role="tabpanel" aria-labelledby="tab-reservations" hidden></section>
+      <section class="panel" id="panel-planning" role="tabpanel" aria-labelledby="tab-planning" hidden></section>
       <section class="panel" id="panel-workshop" role="tabpanel" aria-labelledby="tab-workshop" hidden></section>
       <section class="panel" id="panel-sales" role="tabpanel" aria-labelledby="tab-sales" hidden></section>
+      <section class="panel" id="panel-dashboard" role="tabpanel" aria-labelledby="tab-dashboard" hidden></section>
     </main>
   </div>
 
@@ -63,6 +76,10 @@
   <script src="src/fleet.js"></script>
   <script src="src/operations.js"></script>
   <script src="src/auth.js"></script>
+  <script src="src/accounts.js"></script>
+  <script src="src/planning.js"></script>
+  <script src="src/inbox.js"></script>
+  <script src="src/dashboard.js"></script>
   <script src="src/ui/dom.js"></script>
   <script src="src/ui/search.js"></script>
   <script src="src/ui/reservations.js"></script>
@@ -72,6 +89,10 @@
   <script src="src/ui/login.js"></script>
   <script src="src/ui/public.js"></script>
   <script src="src/ui/certificate.js"></script>
+  <script src="src/ui/planning.js"></script>
+  <script src="src/ui/inbox.js"></script>
+  <script src="src/ui/dashboard.js"></script>
+  <script src="src/ui/client.js"></script>
   <script src="src/app.js"></script>
 </body>
 </html>

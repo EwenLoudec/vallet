@@ -30,6 +30,16 @@ var ValletRules = (() => {
 
   const daysBetween = (fromDate, toDate) => Math.round((toUtcTime(toDate) - toUtcTime(fromDate)) / MILLISECONDS_PER_DAY);
 
+  const normalizeName = (name) => (name || '')
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  const findKeyAccount = (state, clientName) => (state.keyAccounts || [])
+    .find((account) => normalizeName(account.name) === normalizeName(clientName)) || null;
+
   const isNacelle = (machine) => machine.type.startsWith(NACELLE_TYPE_PREFIX);
 
   const periodsOverlap = (first, second) => first.start <= second.end && second.start <= first.end;
@@ -186,6 +196,8 @@ var ValletRules = (() => {
     if (!validation.ok) {
       return validation;
     }
+    const isPrivate = request.customerType === PRIVATE_CUSTOMER;
+    const keyAccount = isPrivate ? null : findKeyAccount(state, request.client);
     const reservation = {
       id: nextReservationId(state),
       ref: request.ref,
@@ -193,8 +205,10 @@ var ValletRules = (() => {
       start: request.start,
       end: request.end,
       enteredBy: request.enteredBy,
-      customerType: request.customerType === PRIVATE_CUSTOMER ? PRIVATE_CUSTOMER : PROFESSIONAL_CUSTOMER,
+      customerType: isPrivate ? PRIVATE_CUSTOMER : PROFESSIONAL_CUSTOMER,
       contact: request.contact || null,
+      keyAccountId: keyAccount ? keyAccount.id : null,
+      purchaseOrder: keyAccount && !isBlank(request.purchaseOrder) ? request.purchaseOrder.trim() : null,
       stage: 'booked',
       departure: null,
       return: null,
@@ -290,6 +304,8 @@ var ValletRules = (() => {
     PROFESSIONAL_CUSTOMER,
     ONLINE_CHANNEL,
     daysBetween,
+    normalizeName,
+    findKeyAccount,
     formatDate,
     vgpExpiry,
     isNacelle,

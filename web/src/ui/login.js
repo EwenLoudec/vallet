@@ -12,7 +12,7 @@ ValletViews.login = (app) => {
   const form = createElement('form', {
     className: 'login__form',
     onSubmit: () => {
-      const result = ValletAuth.authenticate(ValletData.users, emailInput.value, passwordInput.value);
+      const result = ValletAuth.authenticate(app.allUsers, emailInput.value, passwordInput.value);
       if (!result.ok) {
         view.loginError = result.message;
         view.loginEmail = emailInput.value;
@@ -33,7 +33,7 @@ ValletViews.login = (app) => {
   const demoAccounts = createElement('div', { className: 'login__demo' }, [
     createElement('p', { className: 'login__demo-title', textContent: 'Comptes de démonstration' }),
     createElement('p', { className: 'login__demo-hint', textContent: `Mot de passe commun : ${ValletData.demoPassword}` }),
-    createElement('div', { className: 'login__accounts' }, ValletData.users.map((user) => createElement('button', {
+    createElement('div', { className: 'login__accounts' }, app.allUsers.map((user) => createElement('button', {
       type: 'button',
       className: 'account',
       onClick: () => {

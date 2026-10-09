@@ -8,6 +8,7 @@ var ValletAuth = (() => {
     name: user.name,
     role: user.role,
     agency: user.agency,
+    keyAccountId: user.keyAccountId || null,
   });
 
   const findUser = (users, email) => {

@@ -31,15 +31,22 @@ var ValletData = {
     { ref: 'ECH41', type: 'Echafaudage 40 m2', agency: 'Valence', lastVgp: null, workshop: null, sale: null },
   ],
   reservations: [
-    { id: 1, ref: 'NAC112', client: 'BTP Rhone', start: '2026-10-14', end: '2026-10-18', enteredBy: 'Lyon Est', customerType: 'professionnel', contact: null, stage: 'booked', departure: null, return: null },
-    { id: 2, ref: 'NAC112', client: 'Maconnerie Duclos', start: '2026-10-16', end: '2026-10-17', enteredBy: 'Villeurbanne', customerType: 'professionnel', contact: null, stage: 'booked', departure: null, return: null },
-    { id: 3, ref: 'NAC089', client: 'Facades Martin', start: '2026-10-20', end: '2026-10-31', enteredBy: 'Lyon Est', customerType: 'professionnel', contact: null, stage: 'booked', departure: null, return: null },
-    { id: 4, ref: 'COMP21', client: 'M. Pereira (particulier)', start: '2026-10-12', end: '2026-10-12', enteredBy: 'Lyon Est', customerType: 'particulier', contact: null, stage: 'booked', departure: null, return: null },
-    { id: 5, ref: 'ECH40', client: 'Constructions Alpes', start: '2026-10-06', end: '2026-10-24', enteredBy: 'Lyon Est', customerType: 'professionnel', contact: null, stage: 'out', departure: { date: '2026-10-06', photos: [], notes: 'Reprise du planning Excel', deposit: null, imported: true }, return: null },
-    { id: 6, ref: 'NAC140', client: 'BTP Rhone', start: '2026-10-19', end: '2026-10-23', enteredBy: 'Grenoble', customerType: 'professionnel', contact: null, stage: 'booked', departure: null, return: null },
-    { id: 7, ref: 'MINI12', client: 'Artisan Ferreira', start: '2026-10-13', end: '2026-10-14', enteredBy: 'Saint-Etienne', customerType: 'professionnel', contact: null, stage: 'booked', departure: null, return: null },
+    { id: 1, ref: 'NAC112', client: 'BTP Rhone', start: '2026-10-14', end: '2026-10-18', enteredBy: 'Lyon Est', customerType: 'professionnel', contact: null, keyAccountId: 'btp-rhone', purchaseOrder: null, stage: 'booked', departure: null, return: null },
+    { id: 2, ref: 'NAC112', client: 'Maconnerie Duclos', start: '2026-10-16', end: '2026-10-17', enteredBy: 'Villeurbanne', customerType: 'professionnel', contact: null, keyAccountId: null, purchaseOrder: null, stage: 'booked', departure: null, return: null },
+    { id: 3, ref: 'NAC089', client: 'Facades Martin', start: '2026-10-20', end: '2026-10-31', enteredBy: 'Lyon Est', customerType: 'professionnel', contact: null, keyAccountId: null, purchaseOrder: null, stage: 'booked', departure: null, return: null },
+    { id: 4, ref: 'COMP21', client: 'M. Pereira (particulier)', start: '2026-10-12', end: '2026-10-12', enteredBy: 'Lyon Est', customerType: 'particulier', contact: null, keyAccountId: null, purchaseOrder: null, stage: 'booked', departure: null, return: null },
+    { id: 5, ref: 'ECH40', client: 'Constructions Alpes', start: '2026-10-06', end: '2026-10-24', enteredBy: 'Lyon Est', customerType: 'professionnel', contact: null, keyAccountId: null, purchaseOrder: null, stage: 'out', departure: { date: '2026-10-06', photos: [], notes: 'Reprise du planning Excel', deposit: null, imported: true }, return: null },
+    { id: 6, ref: 'NAC140', client: 'BTP Rhone', start: '2026-10-19', end: '2026-10-23', enteredBy: 'Grenoble', customerType: 'professionnel', contact: null, keyAccountId: 'btp-rhone', purchaseOrder: null, stage: 'booked', departure: null, return: null },
+    { id: 7, ref: 'MINI12', client: 'Artisan Ferreira', start: '2026-10-13', end: '2026-10-14', enteredBy: 'Saint-Etienne', customerType: 'professionnel', contact: null, keyAccountId: null, purchaseOrder: null, stage: 'booked', departure: null, return: null },
   ],
   leads: [],
+  keyAccounts: [
+    { id: 'btp-rhone', name: 'BTP Rhone', contactEmail: 'conducteurs@btp-rhone.fr', salesRep: 'Julie Ferrand' },
+  ],
+  clientUsers: [
+    { email: 'conducteur@btp-rhone.fr', password: 'vallet2026', name: 'Conducteur de travaux', role: 'BTP Rhone · grand compte', agency: null, keyAccountId: 'btp-rhone' },
+  ],
+  inboxRead: {},
 };
 
 if (typeof module !== 'undefined' && module.exports) {

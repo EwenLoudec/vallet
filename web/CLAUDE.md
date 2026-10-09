@@ -11,10 +11,14 @@ HTML, CSS et JavaScript statiques. Aucune dépendance, aucune compilation. Les s
 - `src/fleet.js` : VGP, alertes et vente d'occasion (`ValletFleet`)
 - `src/operations.js` : départ, retour, caution, attestation VGP, export facturation (`ValletOperations`)
 - `src/auth.js` : connexion fictive (`ValletAuth`)
+- `src/accounts.js` : grands comptes et leurs réservations (`ValletAccounts`)
+- `src/planning.js` : planning des semaines 41 à 44 et agenda du jour (`ValletPlanning`)
+- `src/inbox.js` : notifications entre agences, calculées depuis l'état (`ValletInbox`)
+- `src/dashboard.js` : indicateurs de pilotage (`ValletDashboard`)
 - `src/ui/*.js` : une vue par écran, enregistrée dans `ValletViews` ; `ui/dom.js` fournit la fabrique d'éléments
 - `src/app.js` : état en mémoire, session, navigation et rendu
 
-Les modules `data`, `rules`, `fleet`, `operations` et `auth` sont purs et exposent aussi `module.exports` pour être testés sous Node. Toute règle va dans ces modules, jamais dans `ui/` ni `app.js`. L'ordre des `<script>` de `index.html` compte : modules purs, puis `ui/dom.js`, puis les vues, puis `app.js`.
+Les modules `data`, `rules`, `fleet`, `operations`, `auth`, `accounts`, `planning`, `inbox` et `dashboard` sont purs et exposent aussi `module.exports` pour être testés sous Node. Toute règle va dans ces modules, jamais dans `ui/` ni `app.js`. L'ordre des `<script>` de `index.html` compte : modules purs, puis `ui/dom.js`, puis les vues, puis `app.js`.
 
 ## Lancer
 
