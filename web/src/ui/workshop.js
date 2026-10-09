@@ -21,7 +21,7 @@ ValletViews.workshop = (app) => {
 
   const renderAlerts = () => {
     const alerts = ValletFleet.vgpAlerts(state);
-    return createElement('div', { className: alerts.length > 0 ? 'alerts alerts--active' : 'alerts' }, [
+    return createElement('div', { id: 'workshop-alerts', className: alerts.length > 0 ? 'alerts alerts--active' : 'alerts' }, [
       createElement('h2', { textContent: `Alertes VGP (${alerts.length})` }),
       alerts.length === 0
         ? createElement('p', { className: 'empty', textContent: `Aucune VGP échue ni à renouveler dans les ${ValletFleet.VGP_ALERT_DAYS} jours.` })
@@ -136,7 +136,7 @@ ValletViews.workshop = (app) => {
     renderAlerts(),
     createElement('h2', { textContent: 'Suivi des VGP des nacelles' }),
     renderVgpTable(),
-    createElement('h2', { className: 'section-title', textContent: 'Parc et immobilisations atelier' }),
+    createElement('h2', { id: 'workshop-fleet', className: 'section-title', textContent: 'Parc et immobilisations atelier' }),
     fleetRows.length === 0 ? emptyState('Aucune machine.') : table(['Référence', 'Type', 'Agence', 'État', ''], fleetRows),
   ];
 };

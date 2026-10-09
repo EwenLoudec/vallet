@@ -37,7 +37,7 @@
   const machineTypes = [...new Set(ValletData.machines.map((machine) => machine.type))];
 
   const view = {
-    searchCriteria: { type: machineTypes[0], start: ValletData.today, end: ValletData.today },
+    searchCriteria: { type: machineTypes[0], ref: '', start: ValletData.today, end: ValletData.today },
     hasSearched: false,
     periodReasons: [],
     openBookingRef: null,
@@ -47,7 +47,7 @@
     openReservationId: null,
     openMachineRef: null,
     modalScrollToTop: false,
-    reservationFilter: { query: '', agency: '', stage: '' },
+    reservationFilter: { query: '', agency: '', stage: '', only: '' },
     dashboardMessage: null,
     drafts: {},
     modalScrollToMessage: false,
@@ -70,6 +70,7 @@
     usedReasons: [],
     usedMessage: null,
     planningAgency: '',
+    planningQuery: '',
     inboxOpen: false,
     clientCriteria: { type: machineTypes[0], start: ValletData.today, end: ValletData.today },
     clientSearched: false,
@@ -227,6 +228,17 @@
     });
   };
 
+  app.showTab = (tabId, targetSelector) => {
+    const tab = document.getElementById(tabId);
+    selectTab(tab);
+    app.render();
+    tab.focus({ preventScroll: true });
+    const target = targetSelector ? document.querySelector(targetSelector) : null;
+    if (target) {
+      target.scrollIntoView({ block: 'start' });
+    }
+  };
+
   app.openCertificate = (reservationId) => {
     view.document = { kind: 'certificate', id: reservationId };
     renderCertificate();
@@ -269,7 +281,7 @@
     view.openReservationId = null;
     view.openMachineRef = null;
     view.hasSearched = false;
-    view.reservationFilter = { query: '', agency: '', stage: '' };
+    view.reservationFilter = { query: '', agency: '', stage: '', only: '' };
     view.dashboardMessage = { kind: 'success', text: 'Données de démonstration rétablies : les données de départ sont revenues.' };
     app.render();
   };
