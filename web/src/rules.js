@@ -48,6 +48,8 @@ var ValletRules = (() => {
     ? { start: reservation.start, end: reservation.return.date }
     : { start: reservation.start, end: reservation.end });
 
+  const isCancelled = (reservation) => reservation.stage === 'cancelled';
+
   const isSold = (machine) => Boolean(machine.sale) && machine.sale.status === 'sold';
 
   const findMachine = (state, ref) => state.machines.find((machine) => machine.ref === ref);
@@ -92,6 +94,9 @@ var ValletRules = (() => {
     const keptReservations = [];
     const sortedReservations = [...state.reservations].sort((first, second) => first.id - second.id);
     return sortedReservations.map((reservation) => {
+      if (isCancelled(reservation)) {
+        return { reservation, status: 'cancelled', reasons: [] };
+      }
       if (reservation.stage !== undefined && reservation.stage !== 'booked') {
         keptReservations.push(reservation);
         return { reservation, status: 'kept', reasons: [] };
@@ -124,7 +129,7 @@ var ValletRules = (() => {
     const period = { start, end };
     const consideredState = ignoreId === undefined ? state : withoutReservation(state, ignoreId);
     const overlapReasons = consideredState.reservations
-      .filter((reservation) => reservation.ref === ref && periodsOverlap(occupiedPeriod(reservation), period))
+      .filter((reservation) => reservation.ref === ref && !isCancelled(reservation) && periodsOverlap(occupiedPeriod(reservation), period))
       .map(overlapReason);
     return [...overlapReasons, ...machineRuleReasons(state, machine, period)];
   };
@@ -310,6 +315,7 @@ var ValletRules = (() => {
     vgpExpiry,
     isNacelle,
     isSold,
+    isCancelled,
     isBlank,
     hasValidVgpOn,
     createReason,

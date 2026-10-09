@@ -47,6 +47,7 @@ var ValletData = {
     { email: 'conducteur@btp-rhone.fr', password: 'vallet2026', name: 'Conducteur de travaux', role: 'BTP Rhone · grand compte', agency: null, keyAccountId: 'btp-rhone' },
   ],
   inboxRead: {},
+  journal: [],
 };
 
 if (typeof module !== 'undefined' && module.exports) {

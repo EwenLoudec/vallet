@@ -37,6 +37,18 @@ var ValletOperations = (() => {
     return null;
   };
 
+  const readSignature = (signature) => {
+    if (!signature || isBlank(signature.image)) {
+      return { value: null, reason: null };
+    }
+    if (isBlank(signature.name)) {
+      return { value: null, reason: createReason('signature', 'Indiquez le nom de la personne qui signe.') };
+    }
+    return { value: { name: signature.name.trim(), image: signature.image }, reason: null };
+  };
+
+  const isSigned = (inspection) => Boolean(inspection && inspection.signature);
+
   const recordDeparture = (state, id, departure) => {
     const reservation = Rules.findReservation(state, id);
     if (!reservation) {
@@ -67,11 +79,18 @@ var ValletOperations = (() => {
     if (invalidDeposit) {
       reasons.push(invalidDeposit);
     }
+    const signature = readSignature(departure.signature);
+    if (signature.reason) {
+      reasons.push(signature.reason);
+    }
     if (reasons.length > 0) {
       return { ok: false, reasons };
     }
     const deposit = isPrivate ? { amount: parseAmount(departure.deposit.amount), method: departure.deposit.method } : null;
     const recordedDeparture = { date, photos: [...departure.photos], notes: (departure.notes || '').trim(), deposit, imported: false };
+    if (signature.value) {
+      recordedDeparture.signature = signature.value;
+    }
     const keyAccount = reservation.keyAccountId
       ? (state.keyAccounts || []).find((account) => account.id === reservation.keyAccountId)
       : null;
@@ -121,22 +140,24 @@ var ValletOperations = (() => {
     if (damages.some((damage) => damage.description === '' || damage.amount === null || damage.amount < 0)) {
       reasons.push(createReason('damage', 'Chaque dégât doit avoir une description et un montant positif ou nul.'));
     }
+    const signature = readSignature(returned.signature);
+    if (signature.reason) {
+      reasons.push(signature.reason);
+    }
     if (reasons.length > 0) {
       return { ok: false, reasons };
     }
-    return {
-      ok: true,
-      state: replaceReservation(state, id, {
-        stage: 'returned',
-        return: {
-          date,
-          photos: [...returned.photos],
-          notes: (returned.notes || '').trim(),
-          damages,
-          settlement: settle(reservation.departure.deposit, damages),
-        },
-      }),
+    const recordedReturn = {
+      date,
+      photos: [...returned.photos],
+      notes: (returned.notes || '').trim(),
+      damages,
+      settlement: settle(reservation.departure.deposit, damages),
     };
+    if (signature.value) {
+      recordedReturn.signature = signature.value;
+    }
+    return { ok: true, state: replaceReservation(state, id, { stage: 'returned', return: recordedReturn }) };
   };
 
   const certificate = (state, id) => {
@@ -211,6 +232,7 @@ var ValletOperations = (() => {
 
   return {
     DEPOSIT_METHODS,
+    isSigned,
     recordDeparture,
     recordReturn,
     settle,

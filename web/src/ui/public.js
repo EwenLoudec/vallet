@@ -43,7 +43,7 @@ ValletViews.publicSpace = (app) => {
         app.render();
         return;
       }
-      app.setState(result.state);
+      app.commitAs(result.state, 'Client en ligne', ValletJournal.describeBooking(result.reservation));
       view.publicReasons = [];
       view.publicBookingRef = null;
       view.publicMessage = {
@@ -128,7 +128,7 @@ ValletViews.publicSpace = (app) => {
         app.render();
         return;
       }
-      app.setState(result.state);
+      app.commitAs(result.state, 'Visiteur', `Demande d'achat : ${machine.ref} par ${result.lead.name}`);
       view.usedReasons = [];
       view.usedRequestRef = null;
       view.usedMessage = { kind: 'success', text: `Demande envoyée pour ${machine.type} (${machine.ref}) : l'agence ${machine.agency} vous recontacte.` };

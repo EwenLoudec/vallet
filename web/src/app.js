@@ -9,6 +9,7 @@
     leads: ValletData.leads,
     keyAccounts: ValletData.keyAccounts,
     inboxRead: ValletData.inboxRead,
+    journal: ValletData.journal,
   }));
   let currentUser = null;
 
@@ -24,7 +25,7 @@
     reservationsMessage: null,
     openReservationId: null,
     drafts: {},
-    certificateId: null,
+    document: null,
     workshopMessage: null,
     workshopReasonsByRef: {},
     vgpReasonsByRef: {},
@@ -100,6 +101,12 @@
     setState: (nextState) => {
       state = nextState;
     },
+    commit: (nextState, text) => {
+      state = ValletJournal.record(nextState, currentUser ? currentUser.name : 'Visiteur', text);
+    },
+    commitAs: (nextState, author, text) => {
+      state = ValletJournal.record(nextState, author, text);
+    },
     getUser: () => currentUser,
     allUsers,
   };
@@ -131,7 +138,8 @@
 
   const renderCertificate = () => {
     const container = document.getElementById('certificate-root');
-    const certificate = view.certificateId === null ? null : ValletViews.certificate(app, view.certificateId);
+    const documentViews = { certificate: ValletViews.certificate, handover: ValletViews.handover };
+    const certificate = view.document === null ? null : documentViews[view.document.kind](app, view.document.id);
     container.replaceChildren(...(certificate ? [certificate] : []));
     document.body.classList.toggle('has-certificate', Boolean(certificate));
   };
@@ -167,12 +175,17 @@
   };
 
   app.openCertificate = (reservationId) => {
-    view.certificateId = reservationId;
+    view.document = { kind: 'certificate', id: reservationId };
     renderCertificate();
   };
 
   app.closeCertificate = () => {
-    view.certificateId = null;
+    view.document = null;
+    renderCertificate();
+  };
+
+  app.openHandover = (reservationId) => {
+    view.document = { kind: 'handover', id: reservationId };
     renderCertificate();
   };
 
@@ -228,7 +241,7 @@
     storage.clear();
     view.inboxOpen = false;
     view.clientSearched = false;
-    view.certificateId = null;
+    view.document = null;
     renderCertificate();
     app.showLogin();
   };
@@ -238,7 +251,7 @@
   });
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && view.certificateId !== null) {
+    if (event.key === 'Escape' && view.document !== null) {
       app.closeCertificate();
     }
   });

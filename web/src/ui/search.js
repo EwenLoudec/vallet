@@ -39,7 +39,7 @@ ValletViews.search = (app) => {
           app.render();
           return;
         }
-        app.setState(result.state);
+        app.commit(result.state, ValletJournal.describeBooking(result.reservation));
         view.openBookingRef = null;
         view.bookingReasons = [];
         const missingOrder = ValletAccounts.missingPurchaseOrder(result.reservation);
@@ -92,10 +92,29 @@ ValletViews.search = (app) => {
       return [row, createElement('tr', { className: 'booking-row' }, [createElement('td', { colspan: '4' }, [renderBookingForm(machine)])])];
     });
 
+    const proposeNextPeriod = (machine) => {
+      const next = ValletChanges.nextAvailability(state, machine.ref, start, end);
+      if (!next) {
+        return createElement('span', { className: 'field__hint', textContent: `Pas de disponibilité dans les ${ValletChanges.AVAILABILITY_HORIZON_DAYS} jours` });
+      }
+      return createElement('div', { className: 'next-slot' }, [
+        createElement('span', { className: 'next-slot__text', textContent: `Disponible ${ValletChanges.describePeriod(next)}` }),
+        button('Réserver ces dates', () => {
+          view.searchCriteria = { type, start: next.start, end: next.end };
+          runSearch();
+          view.openBookingRef = machine.ref;
+          view.bookingReasons = [];
+          view.searchMessage = null;
+          app.render();
+        }),
+      ]);
+    };
+
     const unavailableRows = result.unavailable.map((entry) => createElement('tr', {}, [
       refCell(entry.machine.ref),
       cell(entry.machine.agency),
       cell(reasonList(entry.reasons)),
+      cell(proposeNextPeriod(entry.machine)),
     ]));
 
     return [
@@ -104,7 +123,7 @@ ValletViews.search = (app) => {
         ? createElement('p', { className: 'empty', textContent: `Aucune machine de ce type n'est disponible du ${formatDate(start)} au ${formatDate(end)}.` })
         : table(['Référence', 'Type', 'Agence', ''], availableRows),
       result.unavailable.length > 0 ? createElement('h3', { textContent: `Indisponibles (${result.unavailable.length})` }) : null,
-      result.unavailable.length > 0 ? table(['Référence', 'Agence', 'Raison'], unavailableRows) : null,
+      result.unavailable.length > 0 ? table(['Référence', 'Agence', 'Raison', 'Prochaine disponibilité'], unavailableRows) : null,
     ];
   };
 

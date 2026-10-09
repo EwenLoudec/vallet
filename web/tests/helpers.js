@@ -7,6 +7,7 @@ const freshState = () => JSON.parse(JSON.stringify({
   leads: ValletData.leads,
   keyAccounts: ValletData.keyAccounts,
   inboxRead: ValletData.inboxRead,
+  journal: ValletData.journal,
 }));
 
 const codes = (reasons) => reasons.map((reason) => reason.code);

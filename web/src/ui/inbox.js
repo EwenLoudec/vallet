@@ -6,6 +6,7 @@ ValletViews.inbox = (app) => {
     return null;
   }
   const state = app.getState();
+  const MESSAGE_BADGES = { relocate: ['À replacer', 'warning'], cancellation: ['Annulation', 'danger'], booking: ['Réservation', 'info'] };
   const messages = ValletInbox.messagesFor(state, user.agency);
   const unread = messages.filter((message) => !message.read).length;
 
@@ -40,7 +41,7 @@ ValletViews.inbox = (app) => {
     messages.length === 0
       ? emptyState('Aucune notification.')
       : createElement('ul', { className: 'inbox__list' }, messages.map((message) => createElement('li', { className: message.read ? 'inbox__item' : 'inbox__item is-unread' }, [
-        createElement('span', { className: `badge badge--${message.kind === 'relocate' ? 'warning' : 'info'}`, textContent: message.kind === 'relocate' ? 'À replacer' : 'Réservation' }),
+        createElement('span', { className: `badge badge--${MESSAGE_BADGES[message.kind][1]}`, textContent: MESSAGE_BADGES[message.kind][0] }),
         createElement('p', { className: 'inbox__text', textContent: message.text }),
         createElement('div', { className: 'button-group' }, [
           button('Voir la fiche', () => {

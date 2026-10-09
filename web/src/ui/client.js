@@ -6,7 +6,7 @@ ValletViews.client = (app) => {
   const user = app.getUser();
   const account = ValletAccounts.findAccount(state, user.keyAccountId);
 
-  const STAGE_LABELS = { booked: ['Réservée', 'neutral'], out: ['Sortie', 'info'], returned: ['Rendue', 'ok'] };
+  const STAGE_LABELS = { booked: ['Réservée', 'neutral'], out: ['Sortie', 'info'], returned: ['Rendue', 'ok'], cancelled: ['Annulée', 'danger'] };
 
   const header = createElement('header', { className: 'header' }, [
     createElement('div', { className: 'brand' }, [
@@ -39,7 +39,7 @@ ValletViews.client = (app) => {
       cell(formatDate(reservation.end)),
       cell(reservation.purchaseOrder || '—'),
       cell(badge(stageLabel, stageKind)),
-      actionCell(ValletRules.isNacelle(machine) ? button('Attestation VGP', () => app.openCertificate(reservation.id)) : null),
+      actionCell(ValletRules.isNacelle(machine) && !ValletRules.isCancelled(reservation) ? button('Attestation VGP', () => app.openCertificate(reservation.id)) : null),
     ]);
   });
 

@@ -11,6 +11,23 @@ ValletViews.dashboard = (app) => {
     detail ? createElement('p', { className: 'tile__detail', textContent: detail }) : null,
   ]);
 
+  const JOURNAL_SIZE = 20;
+
+  const renderJournal = () => {
+    const entries = ValletJournal.latest(state, JOURNAL_SIZE);
+    return createElement('section', { className: 'journal', 'aria-label': "Journal d'activité" }, [
+      createElement('h2', { className: 'section-title', textContent: `Journal d'activité (${(state.journal || []).length})` }),
+      entries.length === 0
+        ? createElement('p', { className: 'empty', textContent: "Aucune action depuis l'ouverture. Chaque réservation, départ, retour, VGP ou vente s'inscrit ici avec son auteur." })
+        : createElement('ol', { className: 'journal__list' }, entries.map((entry) => createElement('li', { className: 'journal__item' }, [
+          createElement('span', { className: 'journal__number', textContent: `#${entry.id}` }),
+          createElement('span', { className: 'journal__author', textContent: entry.author }),
+          createElement('span', { className: 'journal__text', textContent: entry.text }),
+          createElement('span', { className: 'journal__date', textContent: formatDate(entry.date) }),
+        ]))),
+    ]);
+  };
+
   const share = indicators.keyAccountShare;
   const sharePercent = share.total === 0 ? 0 : Math.round((share.keyAccount / share.total) * 100);
 
@@ -47,6 +64,7 @@ ValletViews.dashboard = (app) => {
       createElement('p', { className: 'field__hint', textContent: `Situation au ${formatDate(state.today)}, mise à jour à chaque action.` }),
     ]),
     tiles,
+    renderJournal(),
     createElement('h2', { className: 'section-title', textContent: 'Occupation par agence — semaines 42 à 44' }),
     createElement('div', { className: 'table-wrapper' }, [
       createElement('table', { className: 'table occupancy' }, [

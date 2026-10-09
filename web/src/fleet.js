@@ -96,7 +96,9 @@ var ValletFleet = (() => {
     if (!isForSale(machine)) {
       return refuse('notForSale', "Mettez d'abord cette machine en vente.");
     }
-    const hasActiveReservation = state.reservations.some((reservation) => reservation.ref === ref && reservation.stage !== 'returned');
+    const hasActiveReservation = state.reservations.some((reservation) => reservation.ref === ref
+      && reservation.stage !== 'returned'
+      && !Rules.isCancelled(reservation));
     if (hasActiveReservation) {
       return refuse('activeReservation', 'Cette machine a encore une réservation en cours ou à venir.');
     }

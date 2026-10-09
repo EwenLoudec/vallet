@@ -151,6 +151,69 @@ var ValletDom = (() => {
     ]);
   };
 
+  const SIGNATURE_WIDTH = 480;
+  const SIGNATURE_HEIGHT = 160;
+
+  const signaturePad = (label, signature) => {
+    const canvas = createElement('canvas', {
+      className: 'signature__canvas',
+      width: String(SIGNATURE_WIDTH),
+      height: String(SIGNATURE_HEIGHT),
+      role: 'img',
+      'aria-label': `${label} : dessinez la signature dans ce cadre`,
+    });
+    const context = canvas.getContext('2d');
+    context.lineWidth = 2.5;
+    context.lineCap = 'round';
+    context.lineJoin = 'round';
+    context.strokeStyle = '#1d1f2e';
+    if (signature.image) {
+      const image = new Image();
+      image.onload = () => context.drawImage(image, 0, 0);
+      image.src = signature.image;
+    }
+    let isDrawing = false;
+    const pointFrom = (event) => {
+      const bounds = canvas.getBoundingClientRect();
+      return {
+        x: ((event.clientX - bounds.left) / bounds.width) * SIGNATURE_WIDTH,
+        y: ((event.clientY - bounds.top) / bounds.height) * SIGNATURE_HEIGHT,
+      };
+    };
+    canvas.addEventListener('pointerdown', (event) => {
+      isDrawing = true;
+      canvas.setPointerCapture(event.pointerId);
+      const point = pointFrom(event);
+      context.beginPath();
+      context.moveTo(point.x, point.y);
+    });
+    canvas.addEventListener('pointermove', (event) => {
+      if (!isDrawing) {
+        return;
+      }
+      const point = pointFrom(event);
+      context.lineTo(point.x, point.y);
+      context.stroke();
+    });
+    const finish = () => {
+      if (!isDrawing) {
+        return;
+      }
+      isDrawing = false;
+      signature.image = canvas.toDataURL('image/png');
+    };
+    canvas.addEventListener('pointerup', finish);
+    canvas.addEventListener('pointercancel', finish);
+    return createElement('div', { className: 'field signature' }, [
+      createElement('span', { className: 'field__label', textContent: label }),
+      canvas,
+      button('Effacer la signature', () => {
+        context.clearRect(0, 0, SIGNATURE_WIDTH, SIGNATURE_HEIGHT);
+        signature.image = '';
+      }),
+    ]);
+  };
+
   const formValue = (form, name) => (form.elements[name] ? form.elements[name].value : '');
 
   return {
@@ -178,6 +241,7 @@ var ValletDom = (() => {
     emptyState,
     photoGallery,
     photoPicker,
+    signaturePad,
     formValue,
   };
 })();

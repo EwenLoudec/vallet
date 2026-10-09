@@ -42,7 +42,7 @@ ValletViews.workshop = (app) => {
       app.render();
       return;
     }
-    app.setState(result.state);
+    app.commit(result.state, `VGP enregistrée : ${machine.ref} le ${formatDate(date)}`);
     view.vgpReasonsByRef = {};
     const released = before - toRelocateCount(result.state);
     const releasedNotice = released > 0 ? ` ${released} réservation(s) ne sont plus à replacer.` : '';
@@ -88,7 +88,7 @@ ValletViews.workshop = (app) => {
       app.render();
       return;
     }
-    app.setState(result.state);
+    app.commit(result.state, `Immobilisation : ${machine.ref} jusqu'au ${formatDate(until)} (${reason.trim()})`);
     view.workshopReasonsByRef = {};
     const newlyToRelocate = toRelocateCount(result.state) - countBefore;
     const relocateNotice = newlyToRelocate > 0 ? ` ${newlyToRelocate} réservation(s) à replacer : voir l'onglet Réservations.` : '';
@@ -102,7 +102,7 @@ ValletViews.workshop = (app) => {
   const renderWorkshopAction = (machine) => {
     if (machine.workshop) {
       return button(`Remettre en service ${machine.ref}`, () => {
-        app.setState(ValletRules.unblockMachine(app.getState(), machine.ref).state);
+        app.commit(ValletRules.unblockMachine(app.getState(), machine.ref).state, `Remise en service : ${machine.ref}`);
         view.workshopMessage = { kind: 'success', text: `Remise en service : ${machine.ref}.` };
         app.render();
       });

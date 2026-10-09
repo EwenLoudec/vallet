@@ -15,10 +15,12 @@ HTML, CSS et JavaScript statiques. Aucune dépendance, aucune compilation. Les s
 - `src/planning.js` : planning des semaines 41 à 44 et agenda du jour (`ValletPlanning`)
 - `src/inbox.js` : notifications entre agences, calculées depuis l'état (`ValletInbox`)
 - `src/dashboard.js` : indicateurs de pilotage (`ValletDashboard`)
+- `src/changes.js` : modification, annulation, bon de commande, prochaine disponibilité (`ValletChanges`)
+- `src/journal.js` : journal d'activité (`ValletJournal`)
 - `src/ui/*.js` : une vue par écran, enregistrée dans `ValletViews` ; `ui/dom.js` fournit la fabrique d'éléments
 - `src/app.js` : état en mémoire, session, navigation et rendu
 
-Les modules `data`, `rules`, `fleet`, `operations`, `auth`, `accounts`, `planning`, `inbox` et `dashboard` sont purs et exposent aussi `module.exports` pour être testés sous Node. Toute règle va dans ces modules, jamais dans `ui/` ni `app.js`. L'ordre des `<script>` de `index.html` compte : modules purs, puis `ui/dom.js`, puis les vues, puis `app.js`.
+Les modules `data`, `rules`, `fleet`, `operations`, `auth`, `accounts`, `planning`, `inbox`, `dashboard`, `changes` et `journal` sont purs et exposent aussi `module.exports` pour être testés sous Node. Toute règle va dans ces modules, jamais dans `ui/` ni `app.js`. L'ordre des `<script>` de `index.html` compte : modules purs, puis `ui/dom.js`, puis les vues, puis `app.js`.
 
 ## Lancer
 

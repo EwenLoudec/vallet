@@ -10,15 +10,16 @@ var ValletDashboard = (() => {
   const indicators = (state) => {
     const statuses = Rules.reservationStatuses(state);
     const returned = state.reservations.filter((reservation) => reservation.stage === 'returned');
+    const notCancelled = state.reservations.filter((reservation) => !Rules.isCancelled(reservation));
     return {
-      activeReservations: state.reservations.filter((reservation) => reservation.stage !== 'returned').length,
+      activeReservations: notCancelled.filter((reservation) => reservation.stage !== 'returned').length,
       toRelocate: statuses.filter((evaluation) => evaluation.status === 'toRelocate').length,
       vgpAlerts: Fleet.vgpAlerts(state).length,
       inWorkshop: state.machines.filter((machine) => !Rules.isSold(machine) && machine.workshop && machine.workshop.until >= state.today).length,
       departuresWithoutPhoto: state.reservations.filter((reservation) => reservation.departure && reservation.departure.photos.length === 0).length,
       keyAccountShare: {
-        keyAccount: state.reservations.filter((reservation) => reservation.keyAccountId).length,
-        total: state.reservations.length,
+        keyAccount: notCancelled.filter((reservation) => reservation.keyAccountId).length,
+        total: notCancelled.length,
       },
       damagesRecovered: returned.reduce((total, reservation) => total + reservation.return.settlement.damagesTotal, 0),
       lastYearLosses: LAST_YEAR_UNBILLED_REPAIRS,

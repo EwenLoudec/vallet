@@ -4,7 +4,7 @@ ValletViews.reservations = (app) => {
   const { view } = app;
   const state = app.getState();
 
-  const STAGE_LABELS = { booked: ['Réservée', 'neutral'], out: ['Sortie', 'info'], returned: ['Rendue', 'ok'] };
+  const STAGE_LABELS = { booked: ['Réservée', 'neutral'], out: ['Sortie', 'info'], returned: ['Rendue', 'ok'], cancelled: ['Annulée', 'danger'] };
 
   const findMachine = (ref) => ValletRules.findMachine(state, ref);
 
@@ -20,7 +20,7 @@ ValletViews.reservations = (app) => {
       app.render();
       return;
     }
-    app.setState(result.state);
+    app.commit(result.state, `Transfert : réservation n° ${reservation.id} de ${reservation.client} vers ${machine.ref}`);
     view.reservationsMessage = { kind: 'success', text: `Transféré : la réservation de ${reservation.client} est maintenant sur ${machine.ref} (${machine.agency}).` };
     app.render();
   };
@@ -94,7 +94,7 @@ ValletViews.reservations = (app) => {
         cell(formatDate(reservation.start)),
         cell(formatDate(reservation.end)),
         cell(reservation.enteredBy),
-        cell(badge(isKept ? 'OK' : 'À replacer', isKept ? 'ok' : 'warning')),
+        cell(evaluation.status === 'cancelled' ? '—' : badge(isKept ? 'OK' : 'À replacer', isKept ? 'ok' : 'warning')),
         cell(badge(stageLabel, stageKind)),
         actionCell(button(isOpen ? 'Fermer la fiche' : 'Ouvrir la fiche', () => toggleDetail(reservation.id))),
       ]);

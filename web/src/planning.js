@@ -46,7 +46,9 @@ var ValletPlanning = (() => {
     if (machine.workshop && date >= state.today && date <= machine.workshop.until) {
       return { date, kind: 'workshop', label: 'Atelier', reservationId: null };
     }
-    const covering = state.reservations.filter((reservation) => reservation.ref === machine.ref && covers(Rules.occupiedPeriod(reservation), date));
+    const covering = state.reservations.filter((reservation) => reservation.ref === machine.ref
+      && !Rules.isCancelled(reservation)
+      && covers(Rules.occupiedPeriod(reservation), date));
     if (covering.length > 0) {
       const toRelocate = covering.find((reservation) => statusById[reservation.id] === 'toRelocate');
       if (covering.length > 1 || toRelocate) {
@@ -82,7 +84,8 @@ var ValletPlanning = (() => {
   });
 
   const agenda = (state, agency) => {
-    const ofAgency = state.reservations.filter((reservation) => Rules.findMachine(state, reservation.ref).agency === agency);
+    const ofAgency = state.reservations.filter((reservation) => !Rules.isCancelled(reservation)
+      && Rules.findMachine(state, reservation.ref).agency === agency);
     return {
       departures: ofAgency
         .filter((reservation) => reservation.start === state.today)

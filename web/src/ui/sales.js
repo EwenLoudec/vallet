@@ -11,7 +11,7 @@ ValletViews.sales = (app) => {
       app.render();
       return;
     }
-    app.setState(result.state);
+    app.commit(result.state, successText);
     view.salesReasonsByRef = {};
     view.salesMessage = { kind: 'success', text: successText };
     app.render();
