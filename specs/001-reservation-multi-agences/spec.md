@@ -100,6 +100,26 @@ En tant que personnel d'agence, je veux voir les réservations reprises des fich
 
 ---
 
+### User Story 5 - Se connecter et voir son nom (Priority: P2)
+
+En tant qu'utilisateur de Vallet Location, je veux me connecter avec mon e-mail et mon mot de passe, afin de voir mon nom et mon rôle dans l'outil et que mon agence soit déjà renseignée quand je réserve.
+
+**Why this priority**: demandée par l'équipe projet pour la démonstration (pas par le dossier client : voir « Origine » ci-dessous). Elle ne change aucune règle de réservation.
+
+**Independent Test**: se connecter avec le compte de Sandrine Morin, vérifier son nom en en-tête, se déconnecter.
+
+**Acceptance Scenarios**:
+
+1. **Given** l'outil vient d'être ouvert, **When** personne n'est connecté, **Then** seul l'écran de connexion est visible, avec la liste des comptes de démonstration.
+2. **Given** le compte de démonstration de Sandrine Morin, **When** elle saisit son e-mail (majuscules ou espaces autour acceptés) et le bon mot de passe, **Then** l'outil s'ouvre et l'en-tête affiche « Sandrine Morin », « Responsable d'agence · Lyon Est » et un bouton « Se déconnecter ».
+3. **Given** l'écran de connexion, **When** l'e-mail est inconnu ou le mot de passe faux, **Then** le message « E-mail ou mot de passe incorrect. » s'affiche, sans dire lequel des deux est faux, et rien ne s'ouvre.
+4. **Given** Sandrine Morin est connectée, **When** elle ouvre le formulaire de réservation, **Then** « Agence qui saisit » vaut déjà « Lyon Est » et reste modifiable.
+5. **Given** un utilisateur connecté, **When** il recharge la page, **Then** il reste connecté (les données reviennent à celles de départ, comme avant) ; **When** il clique sur « Se déconnecter », **Then** l'écran de connexion revient.
+
+**Origine** : demande de l'équipe projet du 09/10/2026, hors dossier client. À annoncer à Brice comme un ajout s'il demande le journal des ajouts.
+
+---
+
 ### Edge Cases
 
 - **Location d'un seul jour** : une réservation du 12/10 au 12/10 est valide et occupe la machine ce jour-là (cas de COMP21, M. Pereira).
@@ -141,12 +161,22 @@ En tant que personnel d'agence, je veux voir les réservations reprises des fich
 - **FR-014**: L'outil DOIT marquer « à replacer » les réservations reprises qui violent FR-005 ou FR-007. En cas de chevauchement, la réservation saisie en premier garde la machine. (Doc 3, clarification Q3)
 - **FR-015**: Pour chaque réservation « à replacer », l'outil DOIT proposer les machines du même type disponibles sur ses dates, ou dire qu'il n'y en a aucune. L'agence DOIT pouvoir transférer la réservation sur la machine choisie. (Clarification Q3)
 
+**Connexion (US5, demande de l'équipe projet)**
+
+- **FR-016**: L'outil DOIT afficher un écran de connexion tant que personne n'est connecté ; aucun onglet n'est accessible avant.
+- **FR-017**: L'outil DOIT accepter uniquement les comptes de démonstration fictifs : Sandrine Morin (Responsable d'agence, Lyon Est), Mehdi Arfaoui (Responsable atelier), Julie Ferrand (Commerciale grands comptes), Brice Vallet (Direction). L'e-mail est comparé sans tenir compte des majuscules ni des espaces autour.
+- **FR-018**: Un échec de connexion DOIT afficher « E-mail ou mot de passe incorrect. » sans révéler lequel des deux est faux.
+- **FR-019**: Une fois connecté, l'en-tête DOIT afficher le nom, le rôle, l'agence s'il y en a une, et un bouton « Se déconnecter ».
+- **FR-020**: Le formulaire de réservation DOIT pré-remplir « Agence qui saisit » avec l'agence de l'utilisateur connecté, s'il en a une ; le champ reste modifiable.
+- **FR-021**: La connexion DOIT survivre au rechargement de la page pendant la session du navigateur, et disparaître à la déconnexion.
+
 ### Key Entities
 
 - **Agence** : l'une des 7 agences (Lyon Est, Villeurbanne, Grenoble, Saint-Étienne, Clermont-Ferrand, Annecy, Valence).
 - **Machine** : référence unique (ex. NAC112), type (ex. « Nacelle 12 m »), agence de rattachement, date de dernière VGP (nacelles seulement), immobilisation atelier éventuelle avec sa date de fin.
 - **Réservation** : une machine, un client (texte libre : entreprise ou particulier), une date de début et une date de fin incluses, l'agence qui l'a saisie.
 - **Immobilisation atelier** : une machine, une date de fin, un motif (ex. « vérin cassé »).
+- **Utilisateur** (fictif) : nom, e-mail, mot de passe de démonstration, rôle, agence éventuelle.
 
 ## Success Criteria *(mandatory)*
 
@@ -161,7 +191,7 @@ En tant que personnel d'agence, je veux voir les réservations reprises des fich
 ## Assumptions
 
 - **Utilisateurs internes uniquement** : l'outil est utilisé par le personnel de Vallet Location, pas par les clients (entretien Q1 : priorité aux grands comptes ; mail client : ouverture aux particuliers reportée).
-- **Pas d'identification** : pour ce prototype, l'agence qui saisit est choisie dans une liste au moment de la réservation. Il n'y a ni compte ni mot de passe.
+- **Connexion fictive** : les comptes et le mot de passe de démonstration sont écrits dans le prototype et affichés sur l'écran de connexion. Ce n'est pas une sécurité réelle ; une vraie authentification (annuaire de l'entreprise) viendra avec un vrai serveur.
 - **Ordre de saisie** : les fichiers Excel ne donnent pas d'horodatage ; l'ordre des lignes de l'extrait fourni fait foi pour savoir quelle réservation a été saisie en premier.
 - **Fin d'atelier inclusive** : « à l'atelier jusqu'au 2026-10-20 » signifie que MINI07 est indisponible jusqu'au 20/10 inclus.
 - **Recherche par type exact** : chercher « Nacelle 12 m » ne propose pas de nacelle 16 m ou 20 m.

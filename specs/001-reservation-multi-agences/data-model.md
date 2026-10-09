@@ -64,7 +64,7 @@ Les dates `start` et `end` sont **incluses** : une réservation du 14 au 18 occu
 
 Une machine est **disponible** pour une période `[start, end]` si les trois conditions suivantes sont remplies :
 
-1. **Chevauchement** : aucune réservation *gardée* de cette machine ne partage un seul jour avec la période (`a.start ≤ b.end` et `b.start ≤ a.end`).
+1. **Chevauchement** : aucune autre réservation de cette machine, gardée ou à replacer, ne partage un seul jour avec la période (FR-005) (`a.start ≤ b.end` et `b.start ≤ a.end`).
 2. **Atelier** : la machine n'est pas immobilisée, ou `start > workshop.until`.
 3. **VGP** : la machine n'est pas une nacelle, ou `start ≤ échéance VGP` (dernière VGP + 6 mois, échéance comprise).
 
@@ -79,7 +79,7 @@ gardée      → aucune des 3 règles n'est violée (le chevauchement ne compte 
 à replacer  → au moins une règle est violée ; motif(s) : chevauchement avec #id, atelier jusqu'au …, VGP échue le …
 ```
 
-Une réservation « à replacer » ne bloque pas sa machine.
+Une réservation « à replacer » **continue de bloquer sa machine sur ses dates** tant qu'elle n'est pas transférée : sinon une autre agence pourrait reprendre la machine et créer une double réservation (FR-005). Le calcul du statut, lui, ne compare qu'aux réservations déjà gardées, pour que la première saisie garde la machine (clarification Q3).
 
 Transitions :
 
@@ -87,3 +87,22 @@ Transitions :
 - **à replacer → gardée** : l'agence transfère la réservation sur une machine disponible du même type pour les mêmes dates, ou l'atelier lève le blocage.
 
 Statuts attendus avec les données de départ : #2 (Duclos) est à replacer, en chevauchement avec #1, et l'alternative proposée est NAC140. #3 (Façades Martin) est à replacer pour VGP échue le 05/09/2026, sans alternative. Les autres réservations sont gardées.
+
+## Utilisateur (fictif, US5)
+
+| Champ | Type | Règle |
+|-------|------|-------|
+| `email` | texte | unique ; comparé en minuscules, sans espaces autour |
+| `password` | texte | mot de passe de démonstration, affiché sur l'écran de connexion |
+| `name` | texte | affiché en en-tête |
+| `role` | texte | affiché sous le nom |
+| `agency` | agence ou `null` | pré-remplit « Agence qui saisit » |
+
+| Nom | E-mail | Rôle | Agence |
+|-----|--------|------|--------|
+| Sandrine Morin | sandrine.morin@vallet-location.fr | Responsable d'agence | Lyon Est |
+| Mehdi Arfaoui | mehdi.arfaoui@vallet-location.fr | Responsable atelier | — |
+| Julie Ferrand | julie.ferrand@vallet-location.fr | Commerciale grands comptes | — |
+| Brice Vallet | brice.vallet@vallet-location.fr | Direction | — |
+
+Mot de passe de démonstration commun : `vallet2026`.
