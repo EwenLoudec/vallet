@@ -181,3 +181,9 @@ T018 [US4] web/tests/relocation.test.js
 6. Polish et commit.
 
 Si le temps manque, livrer US1 + US2 qui marchent plutôt que les quatre stories à moitié (consignes : « Un outil simple qui marche vaut mieux qu'un outil complet qui plante »).
+
+---
+
+## Phase 8: Convergence
+
+- [X] T025 Restore `enteredBy: 'Saint-Etienne'` on reservation 7 in `web/src/data.js`, as in the Excel extract and data-model.md, per FR-013 (contradicts)

@@ -30,7 +30,7 @@ var ValletData = {
     { id: 4, ref: 'COMP21', client: 'M. Pereira (particulier)', start: '2026-10-12', end: '2026-10-12', enteredBy: 'Lyon Est' },
     { id: 5, ref: 'ECH40', client: 'Constructions Alpes', start: '2026-10-06', end: '2026-10-24', enteredBy: 'Lyon Est' },
     { id: 6, ref: 'NAC140', client: 'BTP Rhone', start: '2026-10-19', end: '2026-10-23', enteredBy: 'Grenoble' },
-    { id: 7, ref: 'MINI12', client: 'Artisan Ferreira', start: '2026-10-13', end: '2026-10-14', enteredBy: 'Saint-Étienne' },
+    { id: 7, ref: 'MINI12', client: 'Artisan Ferreira', start: '2026-10-13', end: '2026-10-14', enteredBy: 'Saint-Etienne' },
   ],
 };
 
