@@ -13,7 +13,7 @@ test('VGP expiry falls back to the last day of a shorter month', () => {
 });
 
 test('a machine is blocked by an overlapping reservation, even by one day', () => {
-  const reasons = ValletRules.machineBlockers(freshState(), 'NAC112', '2026-10-17', '2026-10-20');
+  const reasons = ValletRules.machineBlockers(freshState(), 'NAC112', '2026-10-18', '2026-10-20');
   assert.deepEqual(codes(reasons), ['overlap']);
 });
 

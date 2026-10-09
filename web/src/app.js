@@ -95,12 +95,20 @@
     return createElement('div', { className: `message message--${message.kind}`, role: 'status', textContent: message.text });
   };
 
-  const table = (headers, rows) => createElement('table', { className: 'table' }, [
-    createElement('thead', {}, [createElement('tr', {}, headers.map((header) => createElement('th', { textContent: header })))]),
-    createElement('tbody', {}, rows),
+  const table = (headers, rows) => createElement('div', { className: 'table-wrapper' }, [
+    createElement('table', { className: 'table' }, [
+      createElement('thead', {}, [createElement('tr', {}, headers.map((header) => createElement('th', { textContent: header })))]),
+      createElement('tbody', {}, rows),
+    ]),
   ]);
 
-  const cell = (content) => createElement('td', {}, [content]);
+  const cell = (content, className) => createElement('td', className ? { className } : {}, [content]);
+
+  const refCell = (ref) => cell(ref, 'table__ref');
+
+  const actionCell = (content) => cell(content, 'table__action');
+
+  const badge = (label, isOk) => createElement('span', { className: isOk ? 'badge badge--ok' : 'badge badge--warning', textContent: label });
 
   const findMachine = (ref) => state.machines.find((machine) => machine.ref === ref);
 
@@ -165,10 +173,10 @@
     const availableRows = result.available.flatMap((machine) => {
       const isOpen = view.openBookingRef === machine.ref;
       const row = createElement('tr', {}, [
-        cell(machine.ref),
+        refCell(machine.ref),
         cell(machine.type),
         cell(machine.agency),
-        cell(isOpen ? null : button('Réserver', () => {
+        actionCell(isOpen ? null : button('Réserver', () => {
           view.openBookingRef = machine.ref;
           view.bookingReasons = [];
           view.searchMessage = null;
@@ -178,11 +186,11 @@
       if (!isOpen) {
         return [row];
       }
-      return [row, createElement('tr', {}, [createElement('td', { colspan: '4' }, [renderBookingForm(machine)])])];
+      return [row, createElement('tr', { className: 'booking-row' }, [createElement('td', { colspan: '4' }, [renderBookingForm(machine)])])];
     });
 
     const unavailableRows = result.unavailable.map((entry) => createElement('tr', {}, [
-      cell(entry.machine.ref),
+      refCell(entry.machine.ref),
       cell(entry.machine.agency),
       cell(reasonList(entry.reasons)),
     ]));
@@ -269,15 +277,16 @@
       .map((evaluation) => {
         const reservation = evaluation.reservation;
         const machine = findMachine(reservation.ref);
+        const isKept = evaluation.status === 'kept';
         return createElement('tr', {}, [
-          cell(machine.ref),
+          refCell(machine.ref),
           cell(machine.type),
           cell(machine.agency),
           cell(reservation.client),
           cell(formatDate(reservation.start)),
           cell(formatDate(reservation.end)),
           cell(reservation.enteredBy),
-          cell(evaluation.status === 'kept' ? 'OK' : 'À replacer'),
+          cell(badge(isKept ? 'OK' : 'À replacer', isKept)),
         ]);
       });
     return [
@@ -345,11 +354,13 @@
 
   const renderWorkshopPanel = () => {
     const rows = state.machines.map((machine) => createElement('tr', {}, [
-      cell(machine.ref),
+      refCell(machine.ref),
       cell(machine.type),
       cell(machine.agency),
       cell(vgpLabel(machine)),
-      cell(machine.workshop ? `À l'atelier jusqu'au ${formatDate(machine.workshop.until)} (${machine.workshop.reason})` : 'Disponible'),
+      cell(machine.workshop
+        ? badge(`À l'atelier jusqu'au ${formatDate(machine.workshop.until)} (${machine.workshop.reason})`, false)
+        : badge('Disponible', true)),
       cell(renderWorkshopAction(machine)),
     ]));
     return [

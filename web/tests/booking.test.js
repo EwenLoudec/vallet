@@ -28,7 +28,8 @@ test('US2-2: an overlapping booking is refused and names the conflicting reserva
   const result = ValletRules.book(freshState(), bookingRequest({ ref: 'NAC112', start: '2026-10-17', end: '2026-10-20' }));
 
   assert.equal(result.ok, false);
-  assert.deepEqual(codes(result.reasons), ['overlap']);
+  assert.deepEqual(codes(result.reasons), ['overlap', 'overlap']);
+  assert.match(result.reasons[1].message, /Maconnerie Duclos/);
   const message = result.reasons[0].message;
   assert.match(message, /BTP Rhone/);
   assert.match(message, /14\/10\/2026/);

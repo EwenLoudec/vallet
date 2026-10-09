@@ -76,10 +76,6 @@ var ValletRules = (() => {
     });
   };
 
-  const keptReservationsOf = (state) => evaluateReservations(state)
-    .filter((evaluation) => evaluation.status === 'kept')
-    .map((evaluation) => evaluation.reservation);
-
   const withoutReservation = (state, reservationId) => ({
     ...state,
     reservations: state.reservations.filter((reservation) => reservation.id !== reservationId),
@@ -92,7 +88,7 @@ var ValletRules = (() => {
     }
     const period = { start, end };
     const consideredState = ignoreId === undefined ? state : withoutReservation(state, ignoreId);
-    const overlapReasons = keptReservationsOf(consideredState)
+    const overlapReasons = consideredState.reservations
       .filter((reservation) => reservation.ref === ref && periodsOverlap(reservation, period))
       .map(overlapReason);
     return [...overlapReasons, ...machineRuleReasons(state, machine, period)];

@@ -32,6 +32,19 @@ test('US3-3: blocking a booked machine puts its reservation to relocate', () => 
   assert.deepEqual(codes(ferreira.reasons), ['workshop']);
 });
 
+test('a reservation to relocate still holds its machine on its dates', () => {
+  const blocked = ValletRules.blockMachine(freshState(), 'MINI12', '2026-10-13', 'fuite hydraulique');
+  assert.equal(statusOf(blocked.state, 7).status, 'toRelocate');
+
+  const result = ValletRules.book(blocked.state, {
+    ref: 'MINI12', client: 'BTP Rhone', start: '2026-10-14', end: '2026-10-14', enteredBy: 'Grenoble',
+  });
+
+  assert.equal(result.ok, false);
+  assert.deepEqual(codes(result.reasons), ['overlap']);
+  assert.match(result.reasons[0].message, /Artisan Ferreira/);
+});
+
 test('the workshop cannot block a machine without a date or until a past date', () => {
   const withoutDate = ValletRules.blockMachine(freshState(), 'ECH41', '', 'bâche déchirée');
   assert.equal(withoutDate.ok, false);

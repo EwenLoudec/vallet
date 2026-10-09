@@ -187,3 +187,10 @@ Si le temps manque, livrer US1 + US2 qui marchent plutôt que les quatre stories
 ## Phase 8: Convergence
 
 - [X] T025 Restore `enteredBy: 'Saint-Etienne'` on reservation 7 in `web/src/data.js`, as in the Excel extract and data-model.md, per FR-013 (contradicts)
+
+---
+
+## Phase 9: Correctifs après relecture
+
+- [X] T026 Dans `web/src/rules.js`, faire compter à `machineBlockers` **toutes** les autres réservations de la machine (gardées ou à replacer) pour le chevauchement, conformément à FR-005 et à data-model.md corrigé ; mettre à jour dans `web/tests/` les cas où deux réservations chevauchent (NAC112 : #1 et #2) ; le test « a reservation to relocate still holds its machine on its dates » doit passer
+- [X] T027 Refaire le style de `web/styles.css` (en-tête, onglets, cartes, tableaux, statuts « OK » / « À replacer » en pastilles avec texte, focus visible, espacements sur l'échelle 4/8/16/24/32 px) et ajouter dans `web/src/app.js` les seules classes nécessaires, sans ajouter d'élément ni de fonction à l'interface

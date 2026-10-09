@@ -14,8 +14,9 @@ test('US1-1: a 12 m nacelle from 16/10 to 17/10 is only available at Grenoble', 
   assert.equal(result.available[0].agency, 'Grenoble');
 
   const nac112 = unavailableEntry(result, 'NAC112');
-  assert.deepEqual(codes(nac112.reasons), ['overlap']);
+  assert.deepEqual(codes(nac112.reasons), ['overlap', 'overlap']);
   assert.match(nac112.reasons[0].message, /BTP Rhone/);
+  assert.match(nac112.reasons[1].message, /Maconnerie Duclos/);
 
   assert.deepEqual(codes(unavailableEntry(result, 'NAC118').reasons), ['vgp']);
 });
