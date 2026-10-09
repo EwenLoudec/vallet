@@ -29,12 +29,14 @@ ValletViews.reservationDetail = (app, reservation) => {
     if (!result.ok) {
       draft.reasons = result.reasons;
       draft.message = null;
+      view.modalScrollToMessage = true;
       app.render();
       return;
     }
     app.commit(result.state, journalText);
     draft.reasons = [];
     draft.message = { kind: 'success', text: successText };
+    view.modalScrollToMessage = true;
     app.render();
   };
 
@@ -184,14 +186,11 @@ ValletViews.reservationDetail = (app, reservation) => {
 
   return createElement('section', { className: 'detail', 'aria-label': `Réservation n° ${reservation.id}` }, [
     createElement('div', { className: 'section-header' }, [
-      createElement('h2', { textContent: `Réservation n° ${reservation.id}` }),
+      createElement('h2', { id: 'reservation-dialog-title', textContent: `Réservation n° ${reservation.id}` }),
       createElement('div', { className: 'detail__actions' }, [
         reservation.stage === 'out' || reservation.stage === 'returned' ? button('Bon de sortie', () => app.openHandover(reservation.id)) : null,
         ValletRules.isNacelle(machine) && !ValletRules.isCancelled(reservation) ? button('Attestation VGP', () => app.openCertificate(reservation.id)) : null,
-        button('Fermer la fiche', () => {
-          view.openReservationId = null;
-          app.render();
-        }),
+        button('Fermer la fiche', () => app.closeReservation()),
       ]),
     ]),
     renderSummary(),

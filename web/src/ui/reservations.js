@@ -68,12 +68,6 @@ ValletViews.reservations = (app) => {
     app.render();
   };
 
-  const toggleDetail = (id) => {
-    view.openReservationId = view.openReservationId === id ? null : id;
-    view.reservationsMessage = null;
-    app.render();
-  };
-
   const statuses = ValletRules.reservationStatuses(state);
   const rows = [...statuses]
     .sort((first, second) => first.reservation.start.localeCompare(second.reservation.start) || first.reservation.id - second.reservation.id)
@@ -96,11 +90,16 @@ ValletViews.reservations = (app) => {
         cell(reservation.enteredBy),
         cell(evaluation.status === 'cancelled' ? '—' : badge(isKept ? 'OK' : 'À replacer', isKept ? 'ok' : 'warning')),
         cell(badge(stageLabel, stageKind)),
-        actionCell(button(isOpen ? 'Fermer la fiche' : 'Ouvrir la fiche', () => toggleDetail(reservation.id))),
+        actionCell((() => {
+          const openButton = button('Ouvrir la fiche', () => {
+            view.reservationsMessage = null;
+            app.openReservation(reservation.id);
+          });
+          openButton.dataset.focusKey = `reservation-${reservation.id}`;
+          return openButton;
+        })()),
       ]);
     });
-
-  const openReservation = view.openReservationId === null ? null : ValletRules.findReservation(state, view.openReservationId);
 
   return [
     flashMessage(view.reservationsMessage),
@@ -110,6 +109,5 @@ ValletViews.reservations = (app) => {
       button('Exporter pour la facturation (CSV)', exportBilling),
     ]),
     rows.length === 0 ? emptyState('Aucune réservation.') : table(['Machine', 'Type', 'Agence de la machine', 'Client', 'Du', 'Au', 'Saisie par', 'Statut', 'Étape', ''], rows),
-    openReservation ? ValletViews.reservationDetail(app, openReservation) : null,
   ];
 };

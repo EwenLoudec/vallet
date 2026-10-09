@@ -25,6 +25,7 @@
     reservationsMessage: null,
     openReservationId: null,
     drafts: {},
+    modalScrollToMessage: false,
     document: null,
     workshopMessage: null,
     workshopReasonsByRef: {},
@@ -144,17 +145,52 @@
     document.body.classList.toggle('has-certificate', Boolean(certificate));
   };
 
+  let focusBeforeModal = null;
+
+  const renderModal = () => {
+    const root = document.getElementById('modal-root');
+    const reservation = view.screen === 'app' && view.openReservationId !== null
+      ? ValletRules.findReservation(state, view.openReservationId)
+      : null;
+    if (!reservation) {
+      root.replaceChildren();
+      document.body.classList.remove('has-modal');
+      return;
+    }
+    const previousOverlay = root.querySelector('.modal-overlay');
+    const wasOpen = Boolean(previousOverlay);
+    const previousScroll = wasOpen ? previousOverlay.scrollTop : 0;
+    const focusWasInside = wasOpen && root.contains(document.activeElement);
+    const { overlay, dialog } = ValletViews.reservationModal(app, reservation);
+    root.replaceChildren(overlay);
+    document.body.classList.add('has-modal');
+    overlay.scrollTop = previousScroll;
+    if (view.modalScrollToMessage) {
+      view.modalScrollToMessage = false;
+      const message = dialog.querySelector('.message--error, .message--success, .message--warning');
+      if (message) {
+        message.scrollIntoView({ block: 'center' });
+      }
+    }
+    if (!wasOpen || focusWasInside || document.activeElement === document.body) {
+      dialog.focus({ preventScroll: true });
+    }
+  };
+
   app.render = () => {
     if (view.screen === 'public') {
       screens.public.replaceChildren(...ValletViews.publicSpace(app).filter(Boolean));
+      renderModal();
       return;
     }
     if (view.screen === 'login') {
       screens.login.replaceChildren(...ValletViews.login(app).filter(Boolean));
+      renderModal();
       return;
     }
     if (view.screen === 'client') {
       screens.client.replaceChildren(...ValletViews.client(app).filter(Boolean));
+      renderModal();
       renderCertificate();
       return;
     }
@@ -163,6 +199,7 @@
     Object.entries(panels).forEach(([panelId, renderPanel]) => {
       document.getElementById(panelId).replaceChildren(...renderPanel(app).filter(Boolean));
     });
+    renderModal();
     renderCertificate();
   };
 
@@ -205,14 +242,22 @@
   };
 
   app.openReservation = (reservationId) => {
+    focusBeforeModal = document.activeElement;
     view.openReservationId = reservationId;
-    view.reservationsMessage = null;
-    selectTab(document.getElementById('tab-reservations'));
     app.render();
-    const detail = document.querySelector('#panel-reservations .detail');
-    if (detail) {
-      detail.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  app.closeReservation = () => {
+    const focusKey = focusBeforeModal && focusBeforeModal.dataset ? focusBeforeModal.dataset.focusKey : null;
+    view.openReservationId = null;
+    app.render();
+    const target = focusKey
+      ? document.querySelector(`[data-focus-key="${focusKey}"]`)
+      : focusBeforeModal;
+    if (target && document.body.contains(target)) {
+      target.focus();
     }
+    focusBeforeModal = null;
   };
 
   const enter = (user) => {
@@ -241,6 +286,7 @@
     storage.clear();
     view.inboxOpen = false;
     view.clientSearched = false;
+    view.openReservationId = null;
     view.document = null;
     renderCertificate();
     app.showLogin();
@@ -251,8 +297,15 @@
   });
 
   document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && view.document !== null) {
+    if (event.key !== 'Escape') {
+      return;
+    }
+    if (view.document !== null) {
       app.closeCertificate();
+      return;
+    }
+    if (view.openReservationId !== null && view.screen === 'app') {
+      app.closeReservation();
     }
   });
 

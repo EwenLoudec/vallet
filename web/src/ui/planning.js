@@ -36,7 +36,11 @@ ValletViews.planning = (app) => {
       : createElement('ul', { className: 'agenda__list' }, items.map((item) => createElement('li', { className: 'agenda__item' }, [
         createElement('span', { className: `badge badge--${item.done ? 'ok' : 'warning'}`, textContent: item.done ? doneLabel : pendingLabel }),
         createElement('span', { className: 'agenda__text', textContent: `${item.machine.ref} · ${item.machine.type} — ${item.reservation.client}` }),
-        button('Ouvrir la fiche', () => app.openReservation(item.reservation.id)),
+        (() => {
+          const openButton = button('Ouvrir la fiche', () => app.openReservation(item.reservation.id));
+          openButton.dataset.focusKey = `agenda-${item.reservation.id}`;
+          return openButton;
+        })(),
       ]))),
   ]);
 
@@ -104,6 +108,7 @@ ValletViews.planning = (app) => {
       className: 'planning__hit',
       title: `${description} — ouvrir la fiche`,
       'aria-label': `${description}, ouvrir la fiche`,
+      'data-focus-key': `planning-${cell.reservationId}-${cell.date}`,
       onClick: () => app.openReservation(cell.reservationId),
     }, [content])]);
   };
