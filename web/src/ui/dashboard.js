@@ -5,11 +5,28 @@ ValletViews.dashboard = (app) => {
   const indicators = ValletDashboard.indicators(state);
   const occupancy = ValletDashboard.occupancy(state);
 
-  const tile = (label, value, detail, tone) => createElement('article', { className: `tile${tone ? ` tile--${tone}` : ''}` }, [
-    createElement('p', { className: 'tile__label', textContent: label }),
-    createElement('p', { className: 'tile__value', textContent: value }),
-    detail ? createElement('p', { className: 'tile__detail', textContent: detail }) : null,
+  const tile = (label, value, detail, tone, onOpen) => createElement('button', {
+    type: 'button',
+    className: `tile tile--link${tone ? ` tile--${tone}` : ''}`,
+    'aria-label': `${label} : ${value}. Voir le détail`,
+    onClick: onOpen,
+  }, [
+    createElement('span', { className: 'tile__label', textContent: label }),
+    createElement('span', { className: 'tile__value', textContent: value }),
+    detail ? createElement('span', { className: 'tile__detail', textContent: detail }) : null,
+    createElement('span', { className: 'tile__cta', 'aria-hidden': 'true', textContent: 'Voir le détail →' }),
   ]);
+
+  const showReservations = (filter) => {
+    app.view.reservationFilter = { query: '', agency: '', stage: '', only: '', ...filter };
+    app.showTab('tab-reservations', '#panel-reservations .filters');
+  };
+
+  const showPlanning = (agency) => {
+    app.view.planningAgency = agency;
+    app.view.planningQuery = '';
+    app.showTab('tab-planning', '#panel-planning .planning');
+  };
 
   const JOURNAL_SIZE = 20;
 
@@ -32,13 +49,13 @@ ValletViews.dashboard = (app) => {
   const sharePercent = share.total === 0 ? 0 : Math.round((share.keyAccount / share.total) * 100);
 
   const tiles = createElement('div', { className: 'tiles' }, [
-    tile('Réservations en cours ou à venir', String(indicators.activeReservations), 'Toutes agences confondues'),
-    tile('Réservations à replacer', String(indicators.toRelocate), 'Doubles réservations et règles non respectées', indicators.toRelocate > 0 ? 'warning' : 'ok'),
-    tile('Nacelles en alerte VGP', String(indicators.vgpAlerts), 'Échues ou à renouveler sous 30 jours', indicators.vgpAlerts > 0 ? 'critical' : 'ok'),
-    tile("Machines à l'atelier", String(indicators.inWorkshop), 'Bloquées à la réservation'),
-    tile('Sorties sans photo', String(indicators.departuresWithoutPhoto), 'Reprises du planning Excel ; impossible désormais', indicators.departuresWithoutPhoto > 0 ? 'warning' : 'ok'),
-    tile('Part grands comptes', `${sharePercent} %`, `${share.keyAccount} réservation(s) sur ${share.total}`),
-    tile('Dégâts refacturés', formatEuros(indicators.damagesRecovered), `Contre ${formatEuros(indicators.lastYearLosses)} non refacturés l'an dernier (Doc 4)`),
+    tile('Réservations en cours ou à venir', String(indicators.activeReservations), 'Toutes agences confondues', null, () => showReservations({ stage: 'active' })),
+    tile('Réservations à replacer', String(indicators.toRelocate), 'Doubles réservations et règles non respectées', indicators.toRelocate > 0 ? 'warning' : 'ok', () => showReservations({ stage: 'toRelocate' })),
+    tile('Nacelles en alerte VGP', String(indicators.vgpAlerts), 'Échues ou à renouveler sous 30 jours', indicators.vgpAlerts > 0 ? 'critical' : 'ok', () => app.showTab('tab-workshop', '#workshop-alerts')),
+    tile("Machines à l'atelier", String(indicators.inWorkshop), 'Bloquées à la réservation', null, () => app.showTab('tab-workshop', '#workshop-fleet')),
+    tile('Sorties sans photo', String(indicators.departuresWithoutPhoto), 'Reprises du planning Excel ; impossible désormais', indicators.departuresWithoutPhoto > 0 ? 'warning' : 'ok', () => showReservations({ only: 'noPhoto' })),
+    tile('Part grands comptes', `${sharePercent} %`, `${share.keyAccount} réservation(s) sur ${share.total}`, null, () => showReservations({ only: 'keyAccount' })),
+    tile('Dégâts refacturés', formatEuros(indicators.damagesRecovered), `Contre ${formatEuros(indicators.lastYearLosses)} non refacturés l'an dernier (Doc 4)`, null, () => showReservations({ only: 'damages' })),
   ]);
 
   const occupancyRows = occupancy.map((line) => {
@@ -46,7 +63,13 @@ ValletViews.dashboard = (app) => {
     const percent = Math.round(rate * 100);
     const description = `${line.agency} : ${line.occupiedDays} jour(s) occupé(s) sur ${line.capacityDays} (${percent} %)`;
     return createElement('tr', {}, [
-      createElement('th', { scope: 'row', textContent: line.agency }),
+      createElement('th', { scope: 'row' }, [createElement('button', {
+        type: 'button',
+        className: 'machine-link',
+        title: `Ouvrir le planning de ${line.agency}`,
+        textContent: line.agency,
+        onClick: () => showPlanning(line.agency),
+      })]),
       createElement('td', { textContent: String(line.machineCount) }),
       createElement('td', { textContent: `${line.occupiedDays} / ${line.capacityDays}` }),
       createElement('td', { className: 'occupancy__bar-cell' }, [

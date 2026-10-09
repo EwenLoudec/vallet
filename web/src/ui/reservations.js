@@ -68,16 +68,22 @@ ValletViews.reservations = (app) => {
     app.render();
   };
 
-  const STAGE_OPTIONS = [{ value: '', label: 'Toutes les étapes' }, ...Object.entries(STAGE_LABELS).map(([value, [label]]) => ({ value, label }))];
+  const STAGE_OPTIONS = [
+    { value: '', label: 'Toutes les étapes' },
+    { value: 'active', label: 'En cours ou à venir' },
+    { value: 'toRelocate', label: 'À replacer' },
+    ...Object.entries(STAGE_LABELS).map(([value, [label]]) => ({ value, label })),
+  ];
+  const QUICK_FILTER_LABELS = { noPhoto: 'Sorties sans photo', keyAccount: 'Grands comptes', damages: 'Locations rendues avec dégâts' };
   const filter = view.reservationFilter;
-  const isFiltered = Boolean(filter.query.trim() || filter.agency || filter.stage);
+  const isFiltered = Boolean(filter.query.trim() || filter.agency || filter.stage || filter.only);
 
   const updateFilter = (changes) => {
     view.reservationFilter = { ...view.reservationFilter, ...changes };
     app.render();
   };
 
-  const clearFilters = () => updateFilter({ query: '', agency: '', stage: '' });
+  const clearFilters = () => updateFilter({ query: '', agency: '', stage: '', only: '' });
 
   const renderFilters = () => {
     const { field, selectInput } = ValletDom;
@@ -100,6 +106,16 @@ ValletViews.reservations = (app) => {
       ]),
       field("Agence de la machine", agencySelect),
       field('Étape', stageSelect),
+      filter.only ? createElement('span', { className: 'filter-chip' }, [
+        createElement('span', { textContent: `Filtre rapide : ${QUICK_FILTER_LABELS[filter.only]}` }),
+        createElement('button', {
+          type: 'button',
+          className: 'filter-chip__remove',
+          'aria-label': `Retirer le filtre rapide ${QUICK_FILTER_LABELS[filter.only]}`,
+          textContent: '×',
+          onClick: () => updateFilter({ only: '' }),
+        }),
+      ]) : null,
       isFiltered ? button('Effacer les filtres', clearFilters) : null,
     ]);
   };

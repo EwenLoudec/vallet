@@ -71,7 +71,12 @@ ValletViews.search = (app) => {
       return [errorMessage(view.periodReasons)];
     }
     const { type, start, end } = view.searchCriteria;
-    const result = ValletRules.search(state, type, start, end);
+    const ref = view.searchCriteria.ref || '';
+    const result = ValletFilters.searchMachines(state, { type, ref, start, end });
+    if (result.available.length === 0 && result.unavailable.length === 0) {
+      return [createElement('p', { className: 'empty', textContent: 'Aucune machine ne correspond à ce type et à cette référence.' })];
+    }
+    const showType = !type;
 
     const availableRows = result.available.flatMap((machine) => {
       const isOpen = view.openBookingRef === machine.ref;
@@ -100,7 +105,7 @@ ValletViews.search = (app) => {
       return createElement('div', { className: 'next-slot' }, [
         createElement('span', { className: 'next-slot__text', textContent: `Disponible ${ValletChanges.describePeriod(next)}` }),
         button('Réserver ces dates', () => {
-          view.searchCriteria = { type, start: next.start, end: next.end };
+          view.searchCriteria = { ...view.searchCriteria, start: next.start, end: next.end };
           runSearch();
           view.openBookingRef = machine.ref;
           view.bookingReasons = [];
@@ -112,6 +117,7 @@ ValletViews.search = (app) => {
 
     const unavailableRows = result.unavailable.map((entry) => createElement('tr', {}, [
       refCell(entry.machine.ref),
+      showType ? cell(entry.machine.type) : null,
       cell(entry.machine.agency),
       cell(reasonList(entry.reasons)),
       cell(proposeNextPeriod(entry.machine)),
@@ -120,10 +126,12 @@ ValletViews.search = (app) => {
     return [
       createElement('h3', { textContent: `Disponibles du ${formatDate(start)} au ${formatDate(end)} (${result.available.length})` }),
       result.available.length === 0
-        ? createElement('p', { className: 'empty', textContent: `Aucune machine de ce type n'est disponible du ${formatDate(start)} au ${formatDate(end)}.` })
+        ? createElement('p', { className: 'empty', textContent: `Aucune machine ${type ? 'de ce type ' : ''}n'est disponible du ${formatDate(start)} au ${formatDate(end)}.` })
         : table(['Référence', 'Type', 'Agence', ''], availableRows),
       result.unavailable.length > 0 ? createElement('h3', { textContent: `Indisponibles (${result.unavailable.length})` }) : null,
-      result.unavailable.length > 0 ? table(['Référence', 'Agence', 'Raison', 'Prochaine disponibilité'], unavailableRows) : null,
+      result.unavailable.length > 0
+        ? table(['Référence', ...(showType ? ['Type'] : []), 'Agence', 'Raison', 'Prochaine disponibilité'], unavailableRows)
+        : null,
     ];
   };
 
@@ -132,6 +140,7 @@ ValletViews.search = (app) => {
     onSubmit: (event) => {
       view.searchCriteria = {
         type: formValue(event.target, 'type'),
+        ref: formValue(event.target, 'ref').trim(),
         start: formValue(event.target, 'start'),
         end: formValue(event.target, 'end'),
       };
@@ -142,7 +151,14 @@ ValletViews.search = (app) => {
       app.render();
     },
   }, [
-    field('Type de machine', selectInput('type', app.machineTypes, view.searchCriteria.type)),
+    field('Type de machine', selectInput('type', app.machineTypes, view.searchCriteria.type, 'Tous les types')),
+    field('Référence (facultatif)', createElement('input', {
+      className: 'field__input', type: 'text', name: 'ref', value: view.searchCriteria.ref || '',
+      list: 'machine-references', placeholder: 'Ex. NAC112 ou NAC1', autocomplete: 'off',
+    })),
+    createElement('datalist', { id: 'machine-references' }, state.machines
+      .filter((machine) => !ValletRules.isSold(machine))
+      .map((machine) => createElement('option', { value: machine.ref, textContent: `${machine.type} · ${machine.agency}` }))),
     field('Du', dateInput('start', view.searchCriteria.start)),
     field('Au', dateInput('end', view.searchCriteria.end)),
     submitButton('Rechercher'),

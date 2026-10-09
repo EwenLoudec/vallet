@@ -77,6 +77,24 @@ var ValletPlanning = (() => {
       .map((machine) => ({ machine, cells: planningDays.map((day) => cellFor(state, machine, day.date, statusById)) }));
   };
 
+  const CLIENT_KINDS = ['booked', 'out', 'returned', 'conflict'];
+
+  const filterByClient = (rows, query) => {
+    const wanted = Rules.normalizeName(query);
+    if (wanted === '') {
+      return rows;
+    }
+    return rows
+      .map((row) => ({
+        ...row,
+        cells: row.cells.map((cell) => ({
+          ...cell,
+          matches: CLIENT_KINDS.includes(cell.kind) && Rules.normalizeName(cell.label).includes(wanted),
+        })),
+      }))
+      .filter((row) => row.cells.some((cell) => cell.matches));
+  };
+
   const agendaItem = (state, reservation, isDone) => ({
     reservation,
     machine: Rules.findMachine(state, reservation.ref),
@@ -96,7 +114,7 @@ var ValletPlanning = (() => {
     };
   };
 
-  return { PLANNING_START, PLANNING_DAYS, addDays, days, grid, agenda };
+  return { PLANNING_START, PLANNING_DAYS, addDays, days, grid, filterByClient, agenda };
 })();
 
 if (typeof module !== 'undefined' && module.exports) {
