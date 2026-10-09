@@ -74,8 +74,13 @@ web/
 │   ├── data.js          # parc et réservations de départ, date du jour
 │   ├── rules.js         # règles métier, fonctions pures, sans DOM
 │   └── app.js           # état en mémoire, rendu, gestion des clics
-└── tests/
-    └── rules.test.js    # node:test, un test par scénario de la spec
+└── tests/               # node:test, un test par scénario de la spec
+    ├── helpers.js
+    ├── foundation.test.js
+    ├── search.test.js       # US1
+    ├── booking.test.js      # US2
+    ├── workshop.test.js     # US3
+    └── relocation.test.js   # US4
 ```
 
 **Structure Decision**: une seule application statique dans `web/`. La séparation `rules.js` (pur, testé) / `app.js` (DOM) permet de tester toutes les règles de la spec sans navigateur, et garde l'interface mince.
