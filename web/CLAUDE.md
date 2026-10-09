@@ -6,11 +6,15 @@ Prototype de réservation multi-agences de Vallet Location.
 
 HTML, CSS et JavaScript statiques. Aucune dépendance, aucune compilation. Les scripts sont **classiques** (pas de `type="module"`), pour que la page s'ouvre en `file://`.
 
-- `src/data.js` : données de départ et date du jour, exposées en `ValletData`
-- `src/rules.js` : règles métier, fonctions pures sans DOM, exposées en `ValletRules`
-- `src/app.js` : état en mémoire, rendu et clics
+- `src/data.js` : données de départ, comptes fictifs et date du jour (`ValletData`)
+- `src/rules.js` : disponibilité et réservation (`ValletRules`)
+- `src/fleet.js` : VGP, alertes et vente d'occasion (`ValletFleet`)
+- `src/operations.js` : départ, retour, caution, attestation VGP, export facturation (`ValletOperations`)
+- `src/auth.js` : connexion fictive (`ValletAuth`)
+- `src/ui/*.js` : une vue par écran, enregistrée dans `ValletViews` ; `ui/dom.js` fournit la fabrique d'éléments
+- `src/app.js` : état en mémoire, session, navigation et rendu
 
-`data.js` et `rules.js` exposent aussi `module.exports` pour être testés sous Node. Toute règle va dans `rules.js`, jamais dans `app.js`.
+Les modules `data`, `rules`, `fleet`, `operations` et `auth` sont purs et exposent aussi `module.exports` pour être testés sous Node. Toute règle va dans ces modules, jamais dans `ui/` ni `app.js`. L'ordre des `<script>` de `index.html` compte : modules purs, puis `ui/dom.js`, puis les vues, puis `app.js`.
 
 ## Lancer
 

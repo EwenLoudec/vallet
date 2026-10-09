@@ -9,9 +9,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles-operations.css">
 </head>
 <body>
   <div class="login" id="login-screen" hidden></div>
+
+  <div class="public" id="public-screen" hidden></div>
 
   <div class="app" id="app-shell" hidden>
     <header class="header">
@@ -37,7 +40,11 @@
       </button>
       <button class="tabs__tab" role="tab" id="tab-workshop" aria-controls="panel-workshop" aria-selected="false">
         <svg class="tabs__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.2L3 17.8V21h3.2l6.3-6.3a4 4 0 0 0 5.2-5.4l-2.6 2.6-2.4-.6-.6-2.4z"/></svg>
-        <span>Atelier</span>
+        <span id="tab-workshop-label">Atelier</span>
+      </button>
+      <button class="tabs__tab" role="tab" id="tab-sales" aria-controls="panel-sales" aria-selected="false">
+        <svg class="tabs__icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg>
+        <span>Ventes</span>
       </button>
     </nav>
 
@@ -45,12 +52,26 @@
       <section class="panel" id="panel-search" role="tabpanel" aria-labelledby="tab-search"></section>
       <section class="panel" id="panel-reservations" role="tabpanel" aria-labelledby="tab-reservations" hidden></section>
       <section class="panel" id="panel-workshop" role="tabpanel" aria-labelledby="tab-workshop" hidden></section>
+      <section class="panel" id="panel-sales" role="tabpanel" aria-labelledby="tab-sales" hidden></section>
     </main>
   </div>
 
+  <div id="certificate-root"></div>
+
   <script src="src/data.js"></script>
   <script src="src/rules.js"></script>
+  <script src="src/fleet.js"></script>
+  <script src="src/operations.js"></script>
   <script src="src/auth.js"></script>
+  <script src="src/ui/dom.js"></script>
+  <script src="src/ui/search.js"></script>
+  <script src="src/ui/reservations.js"></script>
+  <script src="src/ui/reservation-detail.js"></script>
+  <script src="src/ui/workshop.js"></script>
+  <script src="src/ui/sales.js"></script>
+  <script src="src/ui/login.js"></script>
+  <script src="src/ui/public.js"></script>
+  <script src="src/ui/certificate.js"></script>
   <script src="src/app.js"></script>
 </body>
 </html>

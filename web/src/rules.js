@@ -1,5 +1,8 @@
 var ValletRules = (() => {
   const VGP_VALIDITY_MONTHS = 6;
+  const PRIVATE_CUSTOMER = 'particulier';
+  const PROFESSIONAL_CUSTOMER = 'professionnel';
+  const ONLINE_CHANNEL = 'Réservation en ligne';
   const NACELLE_TYPE_PREFIX = 'Nacelle';
 
   const padTwoDigits = (number) => String(number).padStart(2, '0');
@@ -18,9 +21,24 @@ var ValletRules = (() => {
     return `${expiryYear}-${padTwoDigits(expiryMonth)}-${padTwoDigits(Math.min(day, lastDayOfExpiryMonth))}`;
   };
 
+  const MILLISECONDS_PER_DAY = 86400000;
+
+  const toUtcTime = (isoDate) => {
+    const [year, month, day] = isoDate.split('-').map(Number);
+    return Date.UTC(year, month - 1, day);
+  };
+
+  const daysBetween = (fromDate, toDate) => Math.round((toUtcTime(toDate) - toUtcTime(fromDate)) / MILLISECONDS_PER_DAY);
+
   const isNacelle = (machine) => machine.type.startsWith(NACELLE_TYPE_PREFIX);
 
   const periodsOverlap = (first, second) => first.start <= second.end && second.start <= first.end;
+
+  const occupiedPeriod = (reservation) => (reservation.stage === 'returned' && reservation.return
+    ? { start: reservation.start, end: reservation.return.date }
+    : { start: reservation.start, end: reservation.end });
+
+  const isSold = (machine) => Boolean(machine.sale) && machine.sale.status === 'sold';
 
   const findMachine = (state, ref) => state.machines.find((machine) => machine.ref === ref);
 
@@ -28,7 +46,7 @@ var ValletRules = (() => {
 
   const overlapReason = (reservation) => createReason(
     'overlap',
-    `Déjà réservée du ${formatDate(reservation.start)} au ${formatDate(reservation.end)} pour ${reservation.client} (saisie par ${reservation.enteredBy}).`,
+    `Déjà réservée du ${formatDate(reservation.start)} au ${formatDate(occupiedPeriod(reservation).end)} pour ${reservation.client} (saisie par ${reservation.enteredBy}).`,
   );
 
   const workshopReason = (workshop) => createReason(
@@ -64,9 +82,13 @@ var ValletRules = (() => {
     const keptReservations = [];
     const sortedReservations = [...state.reservations].sort((first, second) => first.id - second.id);
     return sortedReservations.map((reservation) => {
+      if (reservation.stage !== undefined && reservation.stage !== 'booked') {
+        keptReservations.push(reservation);
+        return { reservation, status: 'kept', reasons: [] };
+      }
       const machine = findMachine(state, reservation.ref);
       const overlapReasons = keptReservations
-        .filter((kept) => kept.ref === reservation.ref && periodsOverlap(kept, reservation))
+        .filter((kept) => kept.ref === reservation.ref && periodsOverlap(occupiedPeriod(kept), reservation))
         .map(overlapReason);
       const reasons = [...overlapReasons, ...machineRuleReasons(state, machine, reservation)];
       if (reasons.length === 0) {
@@ -86,10 +108,13 @@ var ValletRules = (() => {
     if (!machine) {
       return [createReason('unknownMachine', 'Machine inconnue.')];
     }
+    if (isSold(machine)) {
+      return [createReason('sold', 'Machine vendue : elle ne se loue plus.')];
+    }
     const period = { start, end };
     const consideredState = ignoreId === undefined ? state : withoutReservation(state, ignoreId);
     const overlapReasons = consideredState.reservations
-      .filter((reservation) => reservation.ref === ref && periodsOverlap(reservation, period))
+      .filter((reservation) => reservation.ref === ref && periodsOverlap(occupiedPeriod(reservation), period))
       .map(overlapReason);
     return [...overlapReasons, ...machineRuleReasons(state, machine, period)];
   };
@@ -98,7 +123,7 @@ var ValletRules = (() => {
     const available = [];
     const unavailable = [];
     state.machines
-      .filter((machine) => machine.type === type)
+      .filter((machine) => machine.type === type && !isSold(machine))
       .forEach((machine) => {
         const reasons = machineBlockers(state, machine.ref, start, end);
         if (reasons.length === 0) {
@@ -168,8 +193,32 @@ var ValletRules = (() => {
       start: request.start,
       end: request.end,
       enteredBy: request.enteredBy,
+      customerType: request.customerType === PRIVATE_CUSTOMER ? PRIVATE_CUSTOMER : PROFESSIONAL_CUSTOMER,
+      contact: request.contact || null,
+      stage: 'booked',
+      departure: null,
+      return: null,
     };
     return { ok: true, reservation, state: { ...state, reservations: [...state.reservations, reservation] } };
+  };
+
+  const bookOnline = (state, request) => {
+    if (isBlank(request.name)) {
+      return { ok: false, reasons: [createReason('missingField', 'Indiquez votre nom.')] };
+    }
+    const contacts = [request.phone, request.email].filter((value) => !isBlank(value)).map((value) => value.trim());
+    if (contacts.length === 0) {
+      return { ok: false, reasons: [createReason('contact', 'Indiquez un téléphone ou un e-mail pour être recontacté.')] };
+    }
+    return book(state, {
+      ref: request.ref,
+      client: request.name,
+      start: request.start,
+      end: request.end,
+      enteredBy: ONLINE_CHANNEL,
+      customerType: PRIVATE_CUSTOMER,
+      contact: contacts.join(' · '),
+    });
   };
 
   const replaceMachine = (state, ref, changes) => ({
@@ -216,6 +265,9 @@ var ValletRules = (() => {
     if (!reservation || !targetMachine) {
       return { ok: false, reasons: [createReason('unknownMachine', 'Machine inconnue.')] };
     }
+    if (reservation.stage !== undefined && reservation.stage !== 'booked') {
+      return { ok: false, reasons: [createReason('stage', 'Seule une réservation pas encore partie peut être transférée.')] };
+    }
     const currentType = findMachine(state, reservation.ref).type;
     if (targetMachine.type !== currentType) {
       return { ok: false, reasons: [createReason('otherType', `Cette machine n'est pas du même type (${currentType}).`)] };
@@ -234,14 +286,26 @@ var ValletRules = (() => {
   };
 
   return {
+    PRIVATE_CUSTOMER,
+    PROFESSIONAL_CUSTOMER,
+    ONLINE_CHANNEL,
+    daysBetween,
     formatDate,
     vgpExpiry,
     isNacelle,
+    isSold,
+    isBlank,
+    hasValidVgpOn,
+    createReason,
+    findMachine,
+    findReservation,
+    occupiedPeriod,
     machineBlockers,
     search,
     validatePeriod,
     validateBooking,
     book,
+    bookOnline,
     blockMachine,
     unblockMachine,
     reservationStatuses: evaluateReservations,
