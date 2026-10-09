@@ -24,3 +24,17 @@ En-tête permanent : « Vallet Location — Réservations » et « Aujourd'hui :
 - Machine disponible : champs **Jusqu'au** et **Motif**, bouton « Immobiliser NAC112 ».
 - Machine à l'atelier : bouton « Remettre en service MINI07 ».
 - Après un blocage qui touche des réservations : « 1 réservation à replacer : voir l'onglet Réservations. »
+
+## Écran de connexion (US5)
+
+- Plein écran, avant tout onglet. Champs **E-mail** et **Mot de passe**, bouton « Se connecter ».
+- Bloc « Comptes de démonstration » : un bouton par compte (nom et rôle), qui remplit l'e-mail et le mot de passe ; mot de passe commun affiché.
+- Échec : « E-mail ou mot de passe incorrect. ».
+
+## En-tête une fois connecté
+
+- Nom de l'outil, date du jour, puis l'utilisateur : initiales en pastille, nom, « rôle · agence », bouton « Se déconnecter ».
+
+## Charte
+
+- Couleurs XEFI (rouge `#E10600`, anthracite `#2B2D42`), Montserrat, icônes SVG intégrées dans les onglets. Aucune autre fonction ajoutée.

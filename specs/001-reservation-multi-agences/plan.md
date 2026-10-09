@@ -68,19 +68,22 @@ specs/001-reservation-multi-agences/
 ```text
 web/
 ├── CLAUDE.md            # stack, lancement, tests, convention de commit
-├── index.html           # la page : 3 onglets
-├── styles.css
+├── index.html           # la page : connexion, puis 3 onglets
+├── styles.css           # charte XEFI
 ├── src/
-│   ├── data.js          # parc et réservations de départ, date du jour
+│   ├── data.js          # parc, réservations de départ, comptes fictifs, date du jour
 │   ├── rules.js         # règles métier, fonctions pures, sans DOM
-│   └── app.js           # état en mémoire, rendu, gestion des clics
+│   ├── auth.js          # connexion fictive, fonction pure (US5)
+│   └── app.js           # état en mémoire, session, rendu, gestion des clics
 └── tests/               # node:test, un test par scénario de la spec
     ├── helpers.js
     ├── foundation.test.js
     ├── search.test.js       # US1
     ├── booking.test.js      # US2
     ├── workshop.test.js     # US3
-    └── relocation.test.js   # US4
+    ├── relocation.test.js   # US4
+    ├── auth.test.js         # US5
+    └── invariants.test.js   # aucune double réservation, quelle que soit la suite d'actions
 ```
 
 **Structure Decision**: une seule application statique dans `web/`. La séparation `rules.js` (pur, testé) / `app.js` (DOM) permet de tester toutes les règles de la spec sans navigateur, et garde l'interface mince.

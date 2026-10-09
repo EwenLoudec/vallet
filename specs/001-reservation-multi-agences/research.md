@@ -40,3 +40,14 @@
 - **Decision**: aucune ; l'état vit en mémoire.
 - **Rationale**: le prototype sert une recette de 8 minutes par binôme ; repartir des données de départ à chaque rechargement rend les scénarios de Brice reproductibles. La spec ne demande pas de conserver les saisies.
 - **Alternatives considered**: `localStorage` : des réservations de test persisteraient d'une recette à l'autre.
+
+## 8. Connexion fictive (US5)
+
+- **Decision**: comptes de démonstration dans `web/src/data.js` ; vérification par une fonction pure `ValletAuth.authenticate(users, email, password)` dans `web/src/auth.js`, testée sous Node ; l'e-mail de l'utilisateur connecté est gardé en `sessionStorage` (lecture et écriture protégées par `try/catch`, l'outil marche sans).
+- **Rationale**: une vraie authentification exige un serveur, hors de portée du prototype. `sessionStorage` garde la connexion au rechargement sans la garder d'un jour à l'autre, et fonctionne en `file://`.
+- **Alternatives considered**: `localStorage` : la connexion survivrait à la fermeture du navigateur, ce qui gêne l'enchaînement des binômes. Pas de mot de passe (choix d'un profil) : moins réaliste pour la démonstration demandée.
+
+## 9. Charte graphique
+
+- **Decision**: couleurs de la charte XEFI relevées sur xefi.com (rouge `#E10600`, anthracite `#2B2D42`, gris `#F8F8F8` / `#EBEBEB`), police Montserrat chargée depuis Google Fonts avec repli sur les polices système si le poste est hors ligne ; icônes en SVG intégré, sans fichier externe.
+- **Rationale**: demande de l'équipe projet ; le repli garantit que la page s'affiche correctement sans réseau le jour de la démo.

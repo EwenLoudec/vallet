@@ -194,3 +194,17 @@ Si le temps manque, livrer US1 + US2 qui marchent plutôt que les quatre stories
 
 - [X] T026 Dans `web/src/rules.js`, faire compter à `machineBlockers` **toutes** les autres réservations de la machine (gardées ou à replacer) pour le chevauchement, conformément à FR-005 et à data-model.md corrigé ; mettre à jour dans `web/tests/` les cas où deux réservations chevauchent (NAC112 : #1 et #2) ; le test « a reservation to relocate still holds its machine on its dates » doit passer
 - [X] T027 Refaire le style de `web/styles.css` (en-tête, onglets, cartes, tableaux, statuts « OK » / « À replacer » en pastilles avec texte, focus visible, espacements sur l'échelle 4/8/16/24/32 px) et ajouter dans `web/src/app.js` les seules classes nécessaires, sans ajouter d'élément ni de fonction à l'interface
+
+---
+
+## Phase 10: User Story 5 — Connexion fictive, et charte XEFI (Priority: P2)
+
+**Goal**: se connecter avec un compte de démonstration, voir son nom, avoir son agence pré-remplie ; interface aux couleurs XEFI.
+
+**Independent Test**: connexion de Sandrine Morin, nom en en-tête, « Lyon Est » pré-rempli, déconnexion.
+
+- [X] T028 [P] [US5] Écrire `web/tests/auth.test.js` (doit échouer) : compte valide → `ok` avec nom, rôle, agence ; e-mail en majuscules avec espaces → `ok` ; mot de passe faux et e-mail inconnu → même message « E-mail ou mot de passe incorrect. » ; champs vides → refus ; `findUser` par e-mail
+- [X] T029 [US5] Ajouter les 4 comptes de data-model.md dans `web/src/data.js` (`ValletData.users`) et créer `web/src/auth.js` (`ValletAuth.authenticate`, `ValletAuth.findUser`, global navigateur et `module.exports`) ; T028 doit passer
+- [X] T030 [US5] Dans `web/index.html` et `web/src/app.js` : écran de connexion (FR-016 à FR-018), en-tête utilisateur et déconnexion (FR-019), pré-remplissage de l'agence (FR-020), session en `sessionStorage` protégée par `try/catch` (FR-021) ; charger `src/auth.js` avant `src/app.js`
+- [X] T031 Appliquer la charte XEFI dans `web/styles.css` et `web/index.html` (couleurs, Montserrat avec repli système, icônes SVG des onglets), sans aucune autre fonction
+- [X] T032 Lancer toute la suite `web/tests/` et rejouer dans le navigateur les 5 tests du quickstart plus les scénarios US5, avant de commiter

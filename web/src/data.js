@@ -1,5 +1,12 @@
 var ValletData = {
   today: '2026-10-12',
+  demoPassword: 'vallet2026',
+  users: [
+    { email: 'sandrine.morin@vallet-location.fr', password: 'vallet2026', name: 'Sandrine Morin', role: "Responsable d'agence", agency: 'Lyon Est' },
+    { email: 'mehdi.arfaoui@vallet-location.fr', password: 'vallet2026', name: 'Mehdi Arfaoui', role: 'Responsable atelier', agency: null },
+    { email: 'julie.ferrand@vallet-location.fr', password: 'vallet2026', name: 'Julie Ferrand', role: 'Commerciale grands comptes', agency: null },
+    { email: 'brice.vallet@vallet-location.fr', password: 'vallet2026', name: 'Brice Vallet', role: 'Direction', agency: null },
+  ],
   agencies: [
     'Lyon Est',
     'Villeurbanne',

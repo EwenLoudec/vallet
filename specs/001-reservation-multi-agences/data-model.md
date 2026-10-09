@@ -87,3 +87,22 @@ Transitions :
 - **à replacer → gardée** : l'agence transfère la réservation sur une machine disponible du même type pour les mêmes dates, ou l'atelier lève le blocage.
 
 Statuts attendus avec les données de départ : #2 (Duclos) est à replacer, en chevauchement avec #1, et l'alternative proposée est NAC140. #3 (Façades Martin) est à replacer pour VGP échue le 05/09/2026, sans alternative. Les autres réservations sont gardées.
+
+## Utilisateur (fictif, US5)
+
+| Champ | Type | Règle |
+|-------|------|-------|
+| `email` | texte | unique ; comparé en minuscules, sans espaces autour |
+| `password` | texte | mot de passe de démonstration, affiché sur l'écran de connexion |
+| `name` | texte | affiché en en-tête |
+| `role` | texte | affiché sous le nom |
+| `agency` | agence ou `null` | pré-remplit « Agence qui saisit » |
+
+| Nom | E-mail | Rôle | Agence |
+|-----|--------|------|--------|
+| Sandrine Morin | sandrine.morin@vallet-location.fr | Responsable d'agence | Lyon Est |
+| Mehdi Arfaoui | mehdi.arfaoui@vallet-location.fr | Responsable atelier | — |
+| Julie Ferrand | julie.ferrand@vallet-location.fr | Commerciale grands comptes | — |
+| Brice Vallet | brice.vallet@vallet-location.fr | Direction | — |
+
+Mot de passe de démonstration commun : `vallet2026`.

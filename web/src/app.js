@@ -19,7 +19,37 @@
     reservationsMessage: null,
     workshopMessage: null,
     workshopReasonsByRef: {},
+    loginError: null,
+    loginEmail: '',
   };
+
+  const SESSION_KEY = 'vallet.session';
+
+  const readSessionEmail = () => {
+    try {
+      return window.sessionStorage.getItem(SESSION_KEY);
+    } catch (error) {
+      return null;
+    }
+  };
+
+  const writeSessionEmail = (email) => {
+    try {
+      window.sessionStorage.setItem(SESSION_KEY, email);
+    } catch (error) {
+      return;
+    }
+  };
+
+  const clearSession = () => {
+    try {
+      window.sessionStorage.removeItem(SESSION_KEY);
+    } catch (error) {
+      return;
+    }
+  };
+
+  let currentUser = null;
 
   const createElement = (tag, properties, children) => {
     const element = document.createElement(tag);
@@ -151,7 +181,7 @@
       },
     }, [
       field('Client', textInput('client')),
-      field('Agence qui saisit', selectInput('enteredBy', ValletData.agencies, '', 'Choisissez une agence')),
+      field('Agence qui saisit', selectInput('enteredBy', ValletData.agencies, (currentUser && currentUser.agency) || '', 'Choisissez une agence')),
       submitButton(`Confirmer la réservation de ${machine.ref}`),
     ]);
     return createElement('div', {}, [
@@ -376,6 +406,23 @@
     'panel-workshop': renderWorkshopPanel,
   };
 
+  const initialsOf = (name) => name.split(' ').map((part) => part[0]).join('').slice(0, 2).toUpperCase();
+
+  const avatar = (name, className) => createElement('span', { className, 'aria-hidden': 'true', textContent: initialsOf(name) });
+
+  const describeRole = (user) => (user.agency ? `${user.role} · ${user.agency}` : user.role);
+
+  const renderUserArea = () => {
+    document.getElementById('user-area').replaceChildren(
+      avatar(currentUser.name, 'user__avatar'),
+      createElement('div', { className: 'user__identity' }, [
+        createElement('span', { className: 'user__name', textContent: currentUser.name }),
+        createElement('span', { className: 'user__role', textContent: describeRole(currentUser) }),
+      ]),
+      button('Se déconnecter', signOut),
+    );
+  };
+
   const render = () => {
     Object.entries(panels).forEach(([panelId, renderPanel]) => {
       document.getElementById(panelId).replaceChildren(...renderPanel().filter(Boolean));
@@ -390,9 +437,110 @@
     });
   };
 
+  const showApplication = () => {
+    document.getElementById('login-screen').hidden = true;
+    document.getElementById('app-shell').hidden = false;
+    renderUserArea();
+    render();
+  };
+
+  const signIn = (user) => {
+    currentUser = user;
+    writeSessionEmail(user.email);
+    view.loginError = null;
+    view.loginEmail = '';
+    selectTab(document.getElementById('tab-search'));
+    showApplication();
+  };
+
+  const renderLoginScreen = () => {
+    const emailInput = createElement('input', {
+      className: 'field__input', type: 'email', name: 'email', id: 'login-email', value: view.loginEmail, autocomplete: 'username',
+    });
+    const passwordInput = createElement('input', {
+      className: 'field__input', type: 'password', name: 'password', id: 'login-password', autocomplete: 'current-password',
+    });
+
+    const form = createElement('form', {
+      className: 'login__form',
+      onSubmit: () => {
+        const result = ValletAuth.authenticate(ValletData.users, emailInput.value, passwordInput.value);
+        if (!result.ok) {
+          view.loginError = result.message;
+          view.loginEmail = emailInput.value;
+          renderLoginScreen();
+          return;
+        }
+        signIn(result.user);
+      },
+    }, [
+      createElement('h2', { className: 'login__title', textContent: 'Connexion' }),
+      createElement('p', { className: 'login__intro', textContent: 'Connectez-vous pour rechercher et réserver une machine dans les 7 agences.' }),
+      view.loginError ? createElement('div', { className: 'message message--error', role: 'alert', textContent: view.loginError }) : null,
+      field('E-mail', emailInput),
+      field('Mot de passe', passwordInput),
+      createElement('button', { type: 'submit', className: 'button button--primary button--block', textContent: 'Se connecter' }),
+    ]);
+
+    const demoAccounts = createElement('div', { className: 'login__demo' }, [
+      createElement('p', { className: 'login__demo-title', textContent: 'Comptes de démonstration' }),
+      createElement('p', { className: 'login__demo-hint', textContent: `Mot de passe commun : ${ValletData.demoPassword}` }),
+      createElement('div', { className: 'login__accounts' }, ValletData.users.map((user) => createElement('button', {
+        type: 'button',
+        className: 'account',
+        onClick: () => {
+          emailInput.value = user.email;
+          passwordInput.value = ValletData.demoPassword;
+          passwordInput.focus();
+        },
+      }, [
+        avatar(user.name, 'account__avatar'),
+        createElement('span', { className: 'account__identity' }, [
+          createElement('span', { className: 'account__name', textContent: user.name }),
+          createElement('span', { className: 'account__role', textContent: describeRole(user) }),
+        ]),
+      ]))),
+    ]);
+
+    document.getElementById('login-screen').replaceChildren(
+      createElement('div', { className: 'login__brand' }, [
+        createElement('span', { className: 'brand__mark brand__mark--large', 'aria-hidden': 'true', textContent: 'VL' }),
+        createElement('h1', { className: 'login__brand-title', textContent: 'Vallet Location' }),
+        createElement('p', { className: 'login__brand-subtitle', textContent: 'Réservations multi-agences' }),
+        createElement('p', { className: 'login__brand-detail', textContent: '7 agences en Auvergne-Rhône-Alpes, un seul planning.' }),
+      ]),
+      createElement('div', { className: 'login__panel' }, [
+        createElement('div', { className: 'login__card' }, [form, demoAccounts]),
+      ]),
+    );
+  };
+
+  const showLoginScreen = () => {
+    document.getElementById('app-shell').hidden = true;
+    document.getElementById('login-screen').hidden = false;
+    renderLoginScreen();
+    const emailInput = document.getElementById('login-email');
+    if (emailInput) {
+      emailInput.focus();
+    }
+  };
+
+  const signOut = () => {
+    currentUser = null;
+    clearSession();
+    showLoginScreen();
+  };
+
   document.querySelectorAll('.tabs__tab').forEach((tab) => {
     tab.addEventListener('click', () => selectTab(tab));
   });
 
-  render();
+  const sessionEmail = readSessionEmail();
+  const sessionUser = sessionEmail ? ValletAuth.findUser(ValletData.users, sessionEmail) : null;
+  if (sessionUser) {
+    currentUser = sessionUser;
+    showApplication();
+  } else {
+    showLoginScreen();
+  }
 })();
