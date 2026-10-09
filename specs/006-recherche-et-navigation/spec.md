@@ -64,6 +64,20 @@ En tant que commerciale grands comptes, je veux taper le nom d'une entreprise da
 
 ---
 
+### User Story 30 - Choisir l'agence dans « Aujourd'hui » (Priority: P2)
+
+En tant que personnel d'agence, je veux choisir l'agence directement dans le bloc « Aujourd'hui », afin de voir ses départs et retours sans chercher le filtre plus bas.
+
+**Independent Test**: dans le planning sans agence, choisir « Lyon Est » dans le bloc « Aujourd'hui ».
+
+**Acceptance Scenarios**:
+
+1. **Given** le planning sans agence, **When** je choisis « Lyon Est » dans le bloc « Aujourd'hui », **Then** les départs et retours de Lyon Est s'affichent (départ de COMP21) et le filtre Agence du planning passe aussi sur Lyon Est.
+2. **Given** l'agence choisie dans le filtre du planning, **Then** le bloc « Aujourd'hui » affiche la même agence ; **When** je choisis « Toutes les agences » dans le bloc, **Then** le message invitant à choisir une agence revient et le planning montre toutes les agences.
+3. **Given** un utilisateur rattaché à une agence (Sandrine), **Then** son agence est présélectionnée, comme avant.
+
+---
+
 ### Edge Cases
 
 - Les réservations annulées ne sont pas trouvées par la recherche du planning (elles n'y figurent pas).
@@ -76,6 +90,7 @@ En tant que commerciale grands comptes, je veux taper le nom d'une entreprise da
 - **FR-067**: Chaque statistique du pilotage DOIT ouvrir la liste correspondante : réservations filtrées (en cours ou à venir, à replacer, sorties sans photo, grands comptes, avec dégâts), atelier (alertes VGP, parc) ou planning d'une agence.
 - **FR-068**: La liste des réservations DOIT accepter les filtres « En cours ou à venir », « À replacer » et un filtre rapide (sans photo, grand compte, avec dégâts), visibles et effaçables.
 - **FR-069**: Le planning DOIT pouvoir être filtré par nom d'entreprise : ne garder que les machines dont une case porte ce nom, mettre ces cases en évidence et atténuer les autres.
+- **FR-070**: Le bloc « Aujourd'hui » DOIT proposer le choix de l'agence ; ce choix et le filtre Agence du planning sont un seul et même réglage.
 
 ## Success Criteria *(mandatory)*
 

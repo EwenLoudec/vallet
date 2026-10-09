@@ -20,6 +20,16 @@ ValletViews.planning = (app) => {
   const days = ValletPlanning.days(state);
   const rows = ValletPlanning.filterByClient(ValletPlanning.grid(state, agency || null), query);
 
+  const agencySelect = (name, focusKey) => {
+    const select = selectInput(name, [{ value: '', label: 'Toutes les agences' }, ...ValletData.agencies], agency);
+    select.dataset.focusKey = focusKey;
+    select.addEventListener('change', (event) => {
+      view.planningAgency = event.target.value;
+      app.render();
+    });
+    return select;
+  };
+
   const companyInput = createElement('input', {
     className: 'field__input', type: 'search', name: 'company', id: 'planning-company', value: query,
     placeholder: 'Ex. BTP Rhone', autocomplete: 'off', 'data-focus-key': 'planning-search',
@@ -34,14 +44,7 @@ ValletViews.planning = (app) => {
       createElement('label', { className: 'field__label', htmlFor: 'planning-company', textContent: 'Entreprise' }),
       companyInput,
     ]),
-    field('Agence', (() => {
-      const select = selectInput('agency', [{ value: '', label: 'Toutes les agences' }, ...ValletData.agencies], agency);
-      select.addEventListener('change', (event) => {
-        view.planningAgency = event.target.value;
-        app.render();
-      });
-      return select;
-    })()),
+    field('Agence', agencySelect('agency', 'planning-agency')),
   ]);
 
   const agendaList = (title, items, doneLabel, pendingLabel) => createElement('div', { className: 'agenda__column' }, [
@@ -59,16 +62,21 @@ ValletViews.planning = (app) => {
       ]))),
   ]);
 
+  const agendaHeader = (title) => createElement('div', { className: 'agenda__header' }, [
+    createElement('h2', { textContent: title }),
+    field("Agence du jour", agencySelect('agendaAgency', 'agenda-agency')),
+  ]);
+
   const renderAgenda = () => {
     if (!agency) {
       return createElement('div', { className: 'agenda' }, [
-        createElement('h2', { textContent: "Aujourd'hui" }),
+        agendaHeader("Aujourd'hui"),
         emptyState('Choisissez une agence pour voir ses départs et retours du jour.'),
       ]);
     }
     const agenda = ValletPlanning.agenda(state, agency);
     return createElement('div', { className: 'agenda' }, [
-      createElement('h2', { textContent: `Aujourd'hui à ${agency} — ${formatDate(state.today)}` }),
+      agendaHeader(`Aujourd'hui à ${agency} — ${formatDate(state.today)}`),
       createElement('div', { className: 'agenda__columns' }, [
         agendaList('Départs', agenda.departures, 'Parti', 'À préparer'),
         agendaList('Retours attendus', agenda.returns, 'Rendu', 'Attendu'),

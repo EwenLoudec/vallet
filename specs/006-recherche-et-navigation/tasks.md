@@ -24,3 +24,10 @@ description: "Liste des tâches — Recherche et navigation"
 - [X] T507 Suite `web/tests/` au vert
 - [X] T508 Recettes 001 à 006 rejouées dans le navigateur après « Réinitialiser la démonstration » ; 0 erreur console ; 375 et 1366 px sans débordement
 - [X] T509 Commiter et pousser
+
+---
+
+## Phase 4: Agence dans « Aujourd'hui » (demande de l'équipe, 09/10/2026)
+
+- [X] T510 [US30] Liste « Agence » dans le bloc « Aujourd'hui » de `web/src/ui/planning.js`, branchée sur `view.planningAgency` (même réglage que le filtre du planning)
+- [X] T511 Rejouer les recettes 001 à 006 et US30 dans le navigateur ; commiter, pousser, régénérer `vallet-speckit-complet.md`

@@ -100,6 +100,19 @@
   color: var(--xefi-red);
 }
 
+.agenda__header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.panel .agenda .agenda__header h2 {
+  margin: 0;
+}
+
 .filter-chip {
   display: inline-flex;
   align-items: center;

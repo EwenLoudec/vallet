@@ -62,8 +62,8 @@ Sans compte : « Particuliers : réserver en ligne » et « Machines d'occasion 
 | 003 | Pilotage des agences | US13–US18 | FR-040–FR-049 | 15 | Planning semaines 41–44, notifications entre agences, départs et retours du jour, grands comptes et bon de commande, espace client, tableau de bord |
 | 004 | Fiabiliser l'exploitation | US19–US23 | FR-050–FR-058 | 17 | Modifier / annuler, signature du client, bon de sortie imprimable, prochaine disponibilité, journal d'activité, fiche en fenêtre |
 | 005 | Continuité et recherche | US24–US26 | FR-059–FR-065 | 11 | Données conservées, réinitialisation, recherche de réservations, fiche machine |
-| 006 | Recherche et navigation | US27–US29 | FR-066–FR-069 | 9 | Recherche par référence, statistiques du pilotage cliquables, recherche d'entreprise dans le planning |
-| | **Total** | **29** | **69** | **106 (toutes faites)** | Critères de réussite SC-001 à SC-023 |
+| 006 | Recherche et navigation | US27–US30 | FR-066–FR-070 | 11 | Recherche par référence, statistiques du pilotage cliquables, recherche d'entreprise dans le planning, agence choisie dans « Aujourd'hui » |
+| | **Total** | **30** | **70** | **108 (toutes faites)** | Critères de réussite SC-001 à SC-023 |
 
 ## Règles métier clés (vérifiées par les tests)
 
@@ -107,7 +107,8 @@ Sans compte : « Particuliers : réserver en ligne » et « Machines d'occasion 
 | `3a506b5` | Fiche en fenêtre (004, phase 4) |
 | `86e1b9b` | Feature 005 |
 | `be4e514` | Export spec-kit consolidé |
-| (ce commit) | Feature 006 |
+| `f82951a` | Feature 006 |
+| (ce commit) | Agence dans « Aujourd'hui » (006, phase 4) |
 
 ---
 
@@ -2404,6 +2405,20 @@ En tant que commerciale grands comptes, je veux taper le nom d'une entreprise da
 
 ---
 
+###### User Story 30 - Choisir l'agence dans « Aujourd'hui » (Priority: P2)
+
+En tant que personnel d'agence, je veux choisir l'agence directement dans le bloc « Aujourd'hui », afin de voir ses départs et retours sans chercher le filtre plus bas.
+
+**Independent Test**: dans le planning sans agence, choisir « Lyon Est » dans le bloc « Aujourd'hui ».
+
+**Acceptance Scenarios**:
+
+1. **Given** le planning sans agence, **When** je choisis « Lyon Est » dans le bloc « Aujourd'hui », **Then** les départs et retours de Lyon Est s'affichent (départ de COMP21) et le filtre Agence du planning passe aussi sur Lyon Est.
+2. **Given** l'agence choisie dans le filtre du planning, **Then** le bloc « Aujourd'hui » affiche la même agence ; **When** je choisis « Toutes les agences » dans le bloc, **Then** le message invitant à choisir une agence revient et le planning montre toutes les agences.
+3. **Given** un utilisateur rattaché à une agence (Sandrine), **Then** son agence est présélectionnée, comme avant.
+
+---
+
 ###### Edge Cases
 
 - Les réservations annulées ne sont pas trouvées par la recherche du planning (elles n'y figurent pas).
@@ -2416,6 +2431,7 @@ En tant que commerciale grands comptes, je veux taper le nom d'une entreprise da
 - **FR-067**: Chaque statistique du pilotage DOIT ouvrir la liste correspondante : réservations filtrées (en cours ou à venir, à replacer, sorties sans photo, grands comptes, avec dégâts), atelier (alertes VGP, parc) ou planning d'une agence.
 - **FR-068**: La liste des réservations DOIT accepter les filtres « En cours ou à venir », « À replacer » et un filtre rapide (sans photo, grand compte, avec dégâts), visibles et effaçables.
 - **FR-069**: Le planning DOIT pouvoir être filtré par nom d'entreprise : ne garder que les machines dont une case porte ce nom, mettre ces cases en évidence et atténuer les autres.
+- **FR-070**: Le bloc « Aujourd'hui » DOIT proposer le choix de l'agence ; ce choix et le filtre Agence du planning sont un seul et même réglage.
 
 ##### Success Criteria *(mandatory)*
 
@@ -2486,6 +2502,13 @@ Aucun écart.
 - [X] T507 Suite `web/tests/` au vert
 - [X] T508 Recettes 001 à 006 rejouées dans le navigateur après « Réinitialiser la démonstration » ; 0 erreur console ; 375 et 1366 px sans débordement
 - [X] T509 Commiter et pousser
+
+---
+
+##### Phase 4: Agence dans « Aujourd'hui » (demande de l'équipe, 09/10/2026)
+
+- [X] T510 [US30] Liste « Agence » dans le bloc « Aujourd'hui » de `web/src/ui/planning.js`, branchée sur `view.planningAgency` (même réglage que le filtre du planning)
+- [X] T511 Rejouer les recettes 001 à 006 et US30 dans le navigateur ; commiter, pousser, régénérer `vallet-speckit-complet.md`
 
 ### `specs/006-recherche-et-navigation/checklists/requirements.md`
 
